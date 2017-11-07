@@ -41,7 +41,6 @@ Find and replace:
 ```
 banList = {}
 pluginList = {}
-spawnTable = {}
 timeCounter = config.timeServerInitTime
 ```
 with:
