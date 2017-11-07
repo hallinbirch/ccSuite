@@ -89,13 +89,9 @@ local helptext = "\nCommand list:\n\
 /me <text> - Send a message written in the third person\
 /local <text> - Send a message that only players in your area can read (/l)\
 /list - List all players on the server\
---------------------\
 /claimtoken - Receive a token once a day\
 /checktoken - Checks your total number of tokens\
 /perks - Spend your tokens on special commands\
---------------------\
-/pull - Make yourself pullable when stuck in an object\
-/pull <pid> - Pull a stuck player (who has used /pull)\
 /roll - Rolls the dice"
 ```
 
