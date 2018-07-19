@@ -49,6 +49,8 @@ Any ccSuite module can be enabled or disabled by changing a single line in ccCon
 # Installation
 Download the entire repo and drag the contents into their respective data and scripts folders in either .../mp-stuff/ (WINDOWS) or .../PluginExamples (LINUX PACKAGE), then read below.
 
+**Every script/data file must be included, even if you don't enable the respective module!**
+
 # Changes to .../scripts/server.lua
 Open the **server.lua** file and make the following changes (use CTRL-F or something similar):
 
