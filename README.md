@@ -64,7 +64,7 @@ require("ccServerMsg")
 ccScript = require("ccScript")
 -- ~~~~~ END OF CUSTOM ADDITIONS ~~~~~ --
 ```
-
+----------
 ```
 tes3mp.SetPluginEnforcementState(config.enforcePlugins)
 ```
@@ -76,7 +76,7 @@ tes3mp.SetPluginEnforcementState(config.enforcePlugins)
 ccScript.SetupSuite()
 -- ~~~~~ END OF CUSTOM ADDITIONS ~~~~~ --
 ```
-
+----------
 ```
 else
     local message = "Not a valid command. Type /help for more info.\n"
@@ -160,7 +160,7 @@ else
     tes3mp.SendMessage(pid, color.Error..message..color.Default, false)
 end
 ```
-
+----------
 ```
 function OnPlayerDeath(pid)
     myMod.OnPlayerDeath(pid)
@@ -173,7 +173,7 @@ function OnPlayerDeath(pid)
     ccScript.OnPlayerDeath(pid)
 end
 ```
-
+----------
 ```
 function OnPlayerLevel(pid)
     myMod.OnPlayerLevel(pid)
@@ -186,7 +186,7 @@ function OnPlayerLevel(pid)
 	ccScript.OnPlayerLevel(pid)
 end
 ```
-
+----------
 ```
 function OnPlayerCellChange(pid)
     myMod.OnPlayerCellChange(pid)
@@ -199,7 +199,7 @@ function OnPlayerCellChange(pid)
 	ccScript.OnPlayerCellChange(pid)
 end
 ```
-
+----------
 ```
 function OnPlayerEndCharGen(pid)
     myMod.OnPlayerEndCharGen(pid)
@@ -212,7 +212,7 @@ function OnPlayerEndCharGen(pid)
     ccScript.OnPlayerEndCharGen(pid)
 end
 ```
-
+----------
 ```
 function OnGUIAction(pid, idGui, data)
     if myMod.OnGUIAction(pid, idGui, data) then return end
