@@ -14,9 +14,6 @@ tableHelper = require("tableHelper")
 require("ccConfig")
 require("ccAdvanceQuestsConfig")
 
-questTable = {}
-topicTable = {}
-
 ------------------
 -- METHODS SECTION
 ------------------

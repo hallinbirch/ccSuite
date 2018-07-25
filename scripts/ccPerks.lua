@@ -25,6 +25,8 @@ warpTable = {}
 
 local ccSettings = {}
 
+ccSettings.Perks = {}
+ccSettings.perksText = ""
 ccSettings.windowChangeBirthsign = 81100
 ccSettings.windowChangeGender = 81101
 ccSettings.windowChangeHair = 81102
@@ -42,7 +44,11 @@ ccSettings.windowWarp = 81108
 local ccPerks = {}
 
 ccPerks.OnGUIAction = function(pid, idGui, data)
-	local pick = tonumber(data) + 1 -- Mostly for LUA table entries
+	local pick = 0
+    
+    if tonumber(data) ~= nil then
+        pick = tonumber(data) + 1 -- Mostly for LUA table entries
+    end
 
 	if idGui == ccSettings.windowChangeBirthsign then
 
@@ -76,29 +82,10 @@ ccPerks.OnGUIAction = function(pid, idGui, data)
 		end
 		return true
 	elseif idGui == ccSettings.windowPerks then
-		pick = pick - 1
 
-		if pick == 0 then -- Claim Daily Token
-			tokenClaim(pid)
-		elseif pick == 1 then -- Appear as Creature
-			windowCreature(pid)
-		elseif pick == 2 then -- Change Birthsign
-			windowBirthsign(pid)
-		elseif pick == 3 then -- Change Gender
-			windowGender(pid)
-		elseif pick == 4 then -- Change Hair
-			windowHair(pid)
-		elseif pick == 5 then -- Change Head
-			windowHead(pid)
-		elseif pick == 6 then -- Change Race
-			windowRace(pid)
-		elseif pick == 7 then -- Lottery
-			lotteryHandler(pid)
-		elseif pick == 8 then -- Lottery
-			windowPet(pid)
-		elseif pick == 9 then -- Warp
-			windowWarp(pid)
-		end
+        if pick <= #ccSettings.Perks then
+            perksHandler(pid, pick)
+        end
 		return true
 	elseif idGui == ccSettings.windowSetCreature then
 
@@ -143,12 +130,10 @@ ccPerks.PerksWindow = function(pid)
 	local playerName = string.lower(Players[pid].name)
 	
 	nilTokenCheck(playerName)
-	
 	local tokenCounter = tokenList.players[playerName].tokens
-	local perksText = "Claim Daily Token\nAppear as Creature\nChange Birthsign\nChange Gender\nChange Hair\nChange Head\nChange Race\nLottery\nSpawn Pet\nWarp\nCancel"
-	local perksLabel = "Current number of tokens: " .. tokenCounter .. "\nPlease choose a perk:"
-	
-	tes3mp.ListBox(pid, ccSettings.windowPerks, perksLabel, perksText)
+    
+	local windowLabel = "Current number of tokens: " .. tokenCounter .. "\nPlease choose a perk:"
+	tes3mp.ListBox(pid, ccSettings.windowPerks, windowLabel, ccSettings.perksText)
 end
 
 ccPerks.ProcessHCDeath = function(pid)
@@ -201,6 +186,19 @@ ccPerks.SetupLottery = function()
     ccLottery.ItemEntries = tableHelper.getCount(ccLottery.Items)
     ccLottery.TokenEntries = count
     ccLottery.TotalEntries = (ccLottery.TokenEntries + ccLottery.ItemEntries + ccLottery.FillerEntries)
+end
+
+ccPerks.SetupPerks = function()
+    tes3mp.LogMessage(2, "Populating perks table")
+
+    for index, value in ipairs(ccSettings.Perks) do
+
+        if ccSettings.Perks[index].name ~= nil then
+            ccSettings.perksText = ccSettings.perksText .. ccSettings.Perks[index].name .. "\n"
+        end
+    end
+
+    ccSettings.perksText = ccSettings.perksText .. "Cancel"
 end
 
 ccPerks.SetupRaces = function()
@@ -704,6 +702,11 @@ function parseRaceTable(race)
     end
 end
 
+function perksHandler(pid, pick)
+    tes3mp.LogMessage(2, "++++ ccPerks.perkHandler called")
+    ccSettings.Perks[pick].storedFunc(pid)
+end
+
 function raceChanger(pid, pick)
 	local message = ""
 	local playerName = string.lower(Players[pid].name)
@@ -980,5 +983,21 @@ function windowWarp(pid)
     local windowLabel = "Please choose a destination (" .. ccPerksSettings.tokenCostWarp .. " token(s)):"
 	tes3mp.ListBox(pid, ccSettings.windowWarp, windowLabel, ccWarp.warpText)
 end
+
+-- ccPerks commands available to the player.
+-- NOTE: Don't edit anything inside the entries.
+-- If you want to prevent a player from using a command, just remove it from this table.
+ccSettings.Perks = {
+    { name = "Claim Daily Token", storedFunc = tokenClaim },
+    { name = "Appear as Creature", storedFunc = windowCreature },
+    { name = "Change Birthsign", storedFunc = windowBirthsign },
+    { name = "Change Gender", storedFunc = windowGender },
+    { name = "Change Hair", storedFunc = windowHair },
+    { name = "Change Head", storedFunc = windowHead },
+    { name = "Change Race", storedFunc = windowRace },
+    { name = "Lottery", storedFunc = lotteryHandler },
+    { name = "Spawn Pet", storedFunc = windowPet },
+    { name = "Warp", storedFunc = windowWarp }
+}
 
 return ccPerks

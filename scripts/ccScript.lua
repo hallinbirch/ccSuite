@@ -21,10 +21,11 @@ ccPerks = require("ccPerks")
 
 axeWeaponTable = {}
 bluntWeaponTable = {}
-itemsTable = {}
+classItemsTable = {}
 longWeaponTable = {}
 marksmanAmmoTable = {}
 marksmanWeaponTable = {}
+miscItemsTable = {}
 pantsTable = {}
 punishIntTable = {}
 punishExtTable = {}
@@ -34,6 +35,7 @@ shirtTable = {}
 skirtTable = {}
 shoesTable = {}
 shortWeaponTable = {}
+skillItemsTable = {}
 spawnTable = {}
 spearWeaponTable = {}
 
@@ -326,11 +328,13 @@ ccScript.Roll = function(pid)
 end
 
 -- Populates items table that stores all items that new players receive after chargen
-ccScript.SetupInventory = function()
-    tes3mp.LogMessage(2, "Populating inventory tables with vanilla entries")
+ccScript.SetupItems = function()
+    tes3mp.LogMessage(2, "Populating all item tables with vanilla entries")
 
     local infoTableVanilla = {
-        { ccSpawn.Vanilla.Items, itemsTable },
+        { ccSpawn.Vanilla.ClassItems, classItemsTable },
+        { ccSpawn.Vanilla.SkillItems, skillItemsTable },
+        { ccSpawn.Vanilla.MiscItems, miscItemsTable },
         { ccSpawn.Vanilla.Pants, pantsTable },
         { ccSpawn.Vanilla.Shirts, shirtTable },
         { ccSpawn.Vanilla.Skirts, skirtTable },
@@ -340,10 +344,12 @@ ccScript.SetupInventory = function()
     ccScript.PopulateTable(infoTableVanilla)
 
     if string.lower(ccConfig.serverPlugins) == "tamriel" then -- TCC Tamriel
-        tes3mp.LogMessage(2, "Populating inventory tables with Tamriel entries")
+        tes3mp.LogMessage(2, "Populating all item tables with Tamriel entries")
 
         local infoTableTamriel = {
-            { ccSpawn.Tamriel.Items, itemsTable },
+            { ccSpawn.Tamriel.ClassItems, classItemsTable },
+            { ccSpawn.Tamriel.SkillItems, skillItemsTable },
+            { ccSpawn.Tamriel.MiscItems, miscItemsTable },
             { ccSpawn.Tamriel.Pants, pantsTable },
             { ccSpawn.Tamriel.Shirts, shirtTable },
             { ccSpawn.Tamriel.Skirts, skirtTable },
@@ -441,7 +447,7 @@ end
 -- Runs all cc modules to setup server data (if enabled)
 ccScript.SetupSuite = function()
     ccScript.SetupMOTD()
-    ccScript.SetupInventory()
+    ccScript.SetupItems()
     ccScript.SetupPunish()
     ccScript.SetupSpawns()
     ccScript.SetupSafeCells()
@@ -460,6 +466,7 @@ ccScript.SetupSuite = function()
     end
 
     if ccConfig.perksEnabled == true then
+        ccPerks.SetupPerks()
         ccPerks.SetupCreatures()
         ccPerks.SetupLottery()
         ccPerks.SetupRaces()
@@ -516,8 +523,8 @@ ccScript.SpawnItems = function(pid)
     tes3mp.LogMessage(2, "++++ Adding items to new character ++++")
     
     -- Add all ccSpawn.__.Items from ccConfig to player's inventory
-    for index, entryData in pairs(itemsTable) do
-        item = { refId = itemsTable[index][1], count = itemsTable[index][2], charge = itemsTable[index][3] }
+    for index, entryData in pairs(miscItemsTable) do
+        item = { refId = miscItemsTable[index][1], count = miscItemsTable[index][2], charge = miscItemsTable[index][3] }
         table.insert(Players[pid].data.inventory, item)
     end
 
@@ -546,8 +553,18 @@ ccScript.SpawnItems = function(pid)
         Players[pid].data.equipment[10] = item
     end
 
-    -- Give player a random starting weapon if applicable
-    if ccSpawn.giveStartingWeapon == true then
+    -- -- Give player all class-specific items if enabled
+    if ccSpawn.startingClassItems == true then
+        checkClass(pid)
+    end
+
+    -- Give player all skill-specific items if enabled 
+    if ccSpawn.startingSkillItems == true then
+        checkSkills(pid)
+    end
+    
+    -- Give player a random starting weapon if enabled
+    if ccSpawn.startingWeapon == true then
         checkWeaponSkills(pid)
     end
 
@@ -590,6 +607,29 @@ end
 -- FUNCTIONS SECTION
 --------------------
 
+-- Check player class for additional items (ccConfig.lua)
+function checkClass(pid)
+    tes3mp.LogMessage(2, "++++ Checking player class ++++")
+    local playerClass = string.lower(Players[pid].data.character.class)
+
+    for index, value in pairs(classItemsTable) do
+
+        if classItemsTable[index][1] == playerClass then
+
+            for index2, value2 in pairs(classItemsTable[index]) do
+                local item = {}
+
+                if type(classItemsTable[index][index2]) == "table" then
+                    item = { refId = classItemsTable[index][index2][1], count = classItemsTable[index][index2][2], charge = classItemsTable[index][index2][3] }
+                    table.insert(Players[pid].data.inventory, item)
+                end
+            end
+
+            break
+        end
+    end
+end
+
 -- Returns true if a player died in a safe cell (ccConfig.lua)
 function checkSafeCell(pid)
     local deathCell = tes3mp.GetCell(pid)
@@ -604,7 +644,37 @@ function checkSafeCell(pid)
     return false
 end
 
--- Check a player's weapon skills for weapon randomization after chargen
+-- Check player's skills for additional items (ccConfig.lua)
+function checkSkills(pid)
+    tes3mp.LogMessage(2, "++++ Checking player's skills ++++")
+
+    for skillName, skillValue in pairs(Players[pid].data.skills) do
+
+        if skillValue >= ccSpawn.startingSkillMinLevel then
+
+            for index2, _ in pairs(skillItemsTable) do
+
+                if skillItemsTable[index2][1] == string.lower(skillName) then
+
+                    for index3, _ in pairs(skillItemsTable[index2]) do
+                        local item = {}
+
+                        if type(skillItemsTable[index2][index3]) == "table" then
+                            item = { 
+                                refId = skillItemsTable[index2][index3][1], 
+                                count = skillItemsTable[index2][index3][2], 
+                                charge = skillItemsTable[index2][index3][3] 
+                                }
+                            table.insert(Players[pid].data.inventory, item)
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+-- Check a player's skills for a random weapon after chargen (ccConfig.lua)
 function checkWeaponSkills(pid)
     tes3mp.LogMessage(2, "++++ Checking player weapon skills ++++")
     math.random(); math.random() -- Try to get better RNG

@@ -29,6 +29,15 @@ ccWarp.warpText = ""
 -- GENERAL CONFIG
 ------------------
 
+--------
+-- INFO:
+--
+-- NOTE: If you want to change the order in which perks appear, or which 
+-- perks are available to the player, then go to the bottom of ccPerks.lua 
+-- and modify the table. Don't edit the "name" and "storedFunc" values 
+-- in the entries.
+--------
+
 -- Change the token cost (non-Admin) for various perks.
 ccPerksSettings.tokenCostBirthsign = 1
 ccPerksSettings.tokenCostCreature = 1

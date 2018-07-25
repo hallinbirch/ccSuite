@@ -140,7 +140,7 @@ ccPunish.Vanilla.Interiors = {
 }
 
 ccPunish.Vanilla.Exteriors = {
-    { "30, 30", 249856, 249856, 0, 0 }
+    { "30, 30", 249856, 249856, 0, 0 } -- ocean
 }
 
 ccPunish.Tamriel.Interiors = {}
@@ -189,22 +189,34 @@ ccSafeCells.Tamriel = {}
 -- are generated/randomized automatically on start-up.
 --
 -- Format (items): { "refID", count, charge }
--- Format (cells): { "cell ID", Xcoord, Ycoord, Zcoord, Zrot, "displayed name" }
 -- Format (clothes): { "refID", count (this should be 1), charge }
 --------
+
+-- Must be set to true for specific classes to receive items after chargen.
+-- See ccSpawn.Vanilla.ClassItems & ccSpawn.Tamriel.ClassItems.
+ccSpawn.startingClassItems = true
+
+-- Must be set to true for players with specific skills to receive items after chargen.
+-- See ccSpawn.Vanilla.MajorSkillItems & ccSpawn.Tamriel.MajorSkillItems.
+ccSpawn.startingSkillItems = true
+
+-- The minimum skill level that a player must have for a skill to receive a weapon 
+-- after chargen.
+-- If it's set to 0, then everyone will receive everything from the tables.
+ccSpawn.startingSkillMinLevel = 35
 
 -- Must be set to true for player to receive a weapon after chargen.
 -- Server will iterate through a player's skills and give the first 
 -- weapon category that meets the minimum skill threshold (see below).
-ccSpawn.giveStartingWeapon = true
+ccSpawn.startingWeapon = true
 
 -- The minimum skill level that a player must have for a weapon
 -- skill to receive a weapon after chargen.
--- If it's set to 0, then everyone will receive something from 
--- the same weapon category.
+-- If it's set to 0, then everyone will receive something from the same weapon category.
 ccSpawn.startingWeaponMinLevel = 40
 
 -- List of cells/locations where players can randomly spawn after chargen.
+-- Format (cells): { "cell ID", Xcoord, Ycoord, Zcoord, Zrot, "displayed name" }
 ccSpawn.Vanilla.Cells = {
     { "-3, 6", -16523, 54362, 1973, 2.73, "Ald'Ruhn" },
     { "-11, 15", -89353, 128479, 110, 1.86, "Ald Velothi" },
@@ -228,9 +240,36 @@ ccSpawn.Vanilla.Cells = {
     { "11, 14", 101402, 114893, 158, -2.03, "Vos" }
 }
 
+-- Specific classes will receive these items after chargen if ccSpawn.startingClassItems = true.
+-- More items and/or classes can be added by following the format.
+-- Format: { "name of class", { "refID", count, charge }, <more items here> }
+ccSpawn.Vanilla.ClassItems = {
+    { "bard", { "misc_de_lute_01", 1, -1 }, { "misc_de_drum_01", 1, -1 } },
+    { "healer", { "common_robe_02", 1, -1 } },
+    { "mage", { "common_robe_02", 1, -1 } },
+    { "monk", { "common_robe_01", 1, -1 } },
+    { "pilgrim", { "bk_PilgrimsPath", 1, -1 } },
+    { "sorcerer", { "common_robe_02", 1, -1 } }
+}
+
+-- Players with specific major skills will receive items in this table after chargen.
+-- Delete any or all entries if you don't want players to spawn with certain things.
+-- Format: { "name of major skill", { "refID", count, charge }, <more items here> }
+ccSpawn.Vanilla.SkillItems = {
+    { "alchemy", { "apparatus_a_mortar_01", 1, -1 }, { "apparatus_a_alembic_01", 1, -1 } },
+    { "armorer", { "hammer_repair", 3, -1 } },
+    { "block", { "nordic_leather_shield", 1, -1 } },
+    { "enchant", { "misc_soulgem_common", 2, -1 } },
+    { "security", { "pick_apprentice_01", 2, -1 }, { "probe_apprentice_01", 2, -1 } }
+}
+
 -- Players will receive all items in this table after chargen.
-ccSpawn.Vanilla.Items = {
-    { "gold_001", 150, -1 }
+-- Delete any or all entries if you don't want players to spawn with certain things.
+ccSpawn.Vanilla.MiscItems = {
+    { "p_restore_health_b", 3, -1 },
+    { "p_restore_fatigue_b", 3, -1 },
+    { "p_restore_magicka_b", 3, -1 },
+    { "gold_001", 75, -1 }
 }
 
 -- Players will receive one of these weapons after chargen if their skill is high enough.
@@ -337,7 +376,11 @@ ccSpawn.Tamriel.Cells = {
 }
 
 -- WIP tables.
-ccSpawn.Tamriel.Items = {}
+ccSpawn.Tamriel.ClassItems = {}
+
+ccSpawn.Tamriel.SkillItems = {}
+
+ccSpawn.Tamriel.MiscItems = {}
 
 ccSpawn.Tamriel.Axes = {}
 
