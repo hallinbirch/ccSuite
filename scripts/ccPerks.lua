@@ -43,6 +43,12 @@ ccSettings.windowWarp = 81108
 
 local ccPerks = {}
 
+-- Initializes token table
+ccPerks.LoadTokenList = function()
+	tes3mp.LogMessage(2, "Reading tokenlist.json")
+	tokenList = jsonInterface.load("tokenlist.json")
+end
+
 ccPerks.OnGUIAction = function(pid, idGui, data)
 	local pick = 0
     

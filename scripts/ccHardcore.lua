@@ -29,6 +29,12 @@ ccSettings.windowLadder = 81200
 
 local ccHardcore = {}
 
+-- Initializes ladder table
+ccHardcore.LoadLadderList = function()
+	tes3mp.LogMessage(2, "Reading ladder_" .. os.date("%y%m") .. ".json")
+	ladderList = jsonInterface.load("ladder_" .. os.date("%y%m") .. ".json")
+end
+
 -- Used to enable hardcore mode for new players
 ccHardcore.HardcoreMode = function(pid)
     local newDifficulty = config.difficulty + ccHardcoreSettings.addedDifficulty

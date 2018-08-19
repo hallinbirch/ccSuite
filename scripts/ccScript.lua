@@ -461,7 +461,7 @@ ccScript.SetupSuite = function()
         ccHardcore.SetupDeathDrop()
 
         if ccHardcore.LadderCheck() == true then
-            LoadLadderList()
+            ccHardcore.LoadLadderList()
         end
     end
 
@@ -471,7 +471,7 @@ ccScript.SetupSuite = function()
         ccPerks.SetupLottery()
         ccPerks.SetupRaces()
         ccPerks.SetupWarp()
-        LoadTokenList()
+        ccPerks.LoadTokenList()
         ccPerks.TokenClean()
     end
 end
