@@ -33,33 +33,35 @@ ccAdvanceQuestSettings.alwaysWipeOnRestart = false
 -- the following hours.
 ccAdvanceQuestSettings.Vanilla.WipeTimes = {
     { "00" },
-    { "13" },
-    { "12" }
+    { "01" },
+    { "12" },
+    { "13" }
 }
 
 -- Format (quests): { type, journal index, "questID", "actorRefId" }
 ccAdvanceQuestSettings.Vanilla.Quests = {
-	{ 0, 12, "a1_1_findspymaster", "caius cosades" }, 
-	{ 0, 60, "tr_dbattack", "player" }
+    { 0, 12, "a1_1_findspymaster", "caius cosades" }, 
+    { 0, 60, "tr_dbattack", "player" }
 }
 
 -- Format (topics): { "topic name" }
 ccAdvanceQuestSettings.Vanilla.Topics = {
-	{ "Balmora" },
-	{ "Caius Cosades" },
-	{ "Dark Brotherhood" },
-	{ "fines and compensation" },
-	{ "little advice" },
-	{ "little secret" },
-	{ "latest rumors" },
-	{ "orders" },
-	{ "report to Caius Cosades" },
-	{ "transport to Mournhold" },
-	{ "transport to Vvardenfell" }
+    { "Balmora" },
+    { "Caius Cosades" },
+    { "Dark Brotherhood" },
+    { "fines and compensation" },
+    { "little advice" },
+    { "little secret" },
+    { "latest rumors" },
+    { "orders" },
+    { "report to Caius Cosades" },
+    { "transport to Mournhold" },
+    { "transport to Vvardenfell" }
 }
 
 ccAdvanceQuestSettings.Tamriel.WipeTimes = {
-    { "00" }
+    { "00" },
+    { "01" }
 }
 
 ccAdvanceQuestSettings.Tamriel.Quests = {}

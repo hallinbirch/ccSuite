@@ -19,12 +19,14 @@ ccRestartWarning = {}
 -- Format: { minute(s) past the hour, "message" }
 -- Ex: { "15", "Ur Welcome" } will display "Ur Welcome" in chat at 1:15, 2:15, etc.
 ccServerMsgSettings.messages = {
+    { "00", color.Yellow .. "Type /help for all Cornerclub commands. Visit us online at the-cornerclub.com.\n" },
     { "15", color.Yellow .. "Want to help create Morrowind, Skyrim, and Cyrodiil? Type /modding for info.\n" },
-    { "45", color.Yellow .. "Type /help for all Cornerclub commands. Visit us online at the-cornerclub.com.\n" }
+    { "30", color.Yellow .. "Type /help for all Cornerclub commands. Visit us online at the-cornerclub.com.\n" },
+    { "45", color.Yellow .. "Want to help create Morrowind, Skyrim, and Cyrodiil? Type /modding for info.\n" }
 }
 
 -- How often the timer should restart. Only modify this if you know what you're doing.
-ccServerMsgSettings.timer = 55
+ccServerMsgSettings.timer = 60
 
 --------------------------
 -- RESTART WARNING CONFIG

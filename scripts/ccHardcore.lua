@@ -11,8 +11,8 @@
 -- DO NOT TOUCH!
 ------------------
 
-require("ccConfig")
-require("ccHardcoreConfig")
+require("ccsuite/ccConfig")
+require("ccsuite/ccHardcoreConfig")
 require("config")
 
 deathDropTable = {}
@@ -31,8 +31,8 @@ local ccHardcore = {}
 
 -- Initializes ladder table
 ccHardcore.LoadLadderList = function()
-	tes3mp.LogMessage(2, "Reading ladder_" .. os.date("%y%m") .. ".json")
-	ladderList = jsonInterface.load("ladder_" .. os.date("%y%m") .. ".json")
+    tes3mp.LogMessage(2, "Reading ladder_" .. os.date("%y%m") .. ".json")
+    ladderList = jsonInterface.load("ladder_" .. os.date("%y%m") .. ".json")
 end
 
 -- Used to enable hardcore mode for new players
@@ -47,57 +47,35 @@ ccHardcore.HardcoreMode = function(pid)
     -- Increase player's difficulty
     tes3mp.SetDifficulty(pid, newDifficulty)
     tes3mp.SendSettings(pid)
-    
+
+    tes3mp.SendMessage(pid, color.Orange .. Players[pid].name .. " has enabled " .. color.Red .. "Hardcore Mode." ..
+        color.Orange .. " Good luck!\n", true)
+
     -- Avoid edge case where player creates character on last day then new month starts before server restart
-    if ccHardcore.LadderExists() == true then
+    if ccHardcoreSettings.ladderEnabled == true and ccHardcore.LadderExists() == true then
         local hcLadder = "ladder_" .. os.date("%y%m")
 
-        if ladderList.players[playerNameLC] then -- Ensure there's no residual pre-death info saved from another player
+        -- Ensure there's no residual pre-death info saved from another player
+        if ladderList.players[playerNameLC] then
             ladderList.players[playerNameLC] = nil
-            jsonInterface.save( hcLadder .. ".json", ladderList)
+            jsonInterface.save(hcLadder .. ".json", ladderList)
         end
 
-        local player = {} -- Create a table entry for this player in the ladder file
+        -- Create a table entry for this player in the ladder file
+        local player = {} 
         player.displayName = Players[pid].data.login.name
         player.level = 1
         ladderList.players[playerNameLC] = player
         jsonInterface.save("ladder_" .. ccSettings.currentLadder .. ".json", ladderList)
-
-        tes3mp.SendMessage(pid, color.Orange .. Players[pid].name .. " has enabled " .. color.Red .. "Hardcore Mode." .. color.Orange .. " Good luck!\n", true)
     else
-        tes3mp.SendMessage(pid, color.Red .. "Failed to start Hardcore mode. Please contact an admin to delete your character and try again after the next server restart.\n", false)
+        tes3mp.SendMessage(pid, color.Red .. "ERROR: Failed to join the ladder. Please delete your character" ..
+            " and try again after the next server restart.\n", false)
     end
 end
 
--- Used to automatically generate monthly Hardcore ladders
-ccHardcore.LadderCheck = function()
-    ccSettings.currentLadder = os.date("%y%m")
-    local ladderFile = io.open(ccConfig.dataPath .. "ladder_" .. ccSettings.currentLadder .. ".json", "r")
-    
-    -- https://stackoverflow.com/questions/16367524/copy-csv-file-to-new-file-in-lua
-    if ccHardcore.LadderExists() == true then -- Ladder file is present so do nothing
-        tes3mp.LogMessage(1, "File for ladder " .. ccSettings.currentLadder .. " is present")
-        return true
-    else -- Ladder file is not present, so copy the contents of the template file and write to new file using current month as title
-        tes3mp.LogMessage(1, "++++ File for ladder " .. ccSettings.currentLadder .. " is not present. Copying template file. ++++")
-        
-        local templateFile = io.open(ccConfig.dataPath .. "ladderTemplate.json", "r")
-        local copyTemplate = templateFile:read("*a")
-        templateFile:close()
-        
-        tes3mp.LogMessage(1, "++++ Template file copied. Writing JSON table. ++++")
-        
-        ladderFile = io.open(ccConfig.dataPath .. "ladder_" .. ccSettings.currentLadder .. ".json", "w")
-        ladderFile:write(copyTemplate)
-        ladderFile:close()
-        tes3mp.LogMessage(1, "++++ File for ladder " .. ccSettings.currentLadder .. " created. ++++")
-        return true
-    end
-end
-
--- Ensures the correct ladder file is present, mostly for end-of-month edge case
+-- Ensures the correct ladder file is present, mostly intended for end-of-month edge case
 ccHardcore.LadderExists = function() 
-    local hcLadder = os.date("%y%m") -- The main check
+    local hcLadder = os.date("%y%m")
     local ladderFile = io.open(ccConfig.dataPath .. "ladder_" .. hcLadder .. ".json", "r")
 
     if ladderFile then return true
@@ -105,12 +83,41 @@ ccHardcore.LadderExists = function()
     end
 end
 
+-- Used to automatically generate monthly Hardcore ladders
+-- https://stackoverflow.com/questions/16367524/copy-csv-file-to-new-file-in-lua
+ccHardcore.LadderHandler = function()
+    ccSettings.currentLadder = os.date("%y%m")
+    local ladderFile = io.open(ccConfig.dataPath .. "ladder_" .. ccSettings.currentLadder .. ".json", "r")
+
+    -- Ladder file is present so do nothing
+    if ccHardcore.LadderExists() == true then
+        tes3mp.LogMessage(1, "File for ladder " .. ccSettings.currentLadder .. " is present")
+        return
+    -- Ladder file is not present, so copy template file and write to new file using current month as title
+    else
+        tes3mp.LogMessage(1, "++++ File for ladder " .. ccSettings.currentLadder .. " is not present. Copying" ..
+            " template file. ++++")
+
+        local templateFile = io.open(ccConfig.dataPath .. "ladderTemplate.json", "r")
+        local copyTemplate = templateFile:read("*a")
+        templateFile:close()
+
+        tes3mp.LogMessage(1, "++++ Template file copied. Writing JSON table. ++++")
+
+        ladderFile = io.open(ccConfig.dataPath .. "ladder_" .. ccSettings.currentLadder .. ".json", "w")
+        ladderFile:write(copyTemplate)
+        ladderFile:close()
+        tes3mp.LogMessage(1, "++++ File for ladder " .. ccSettings.currentLadder .. " created. ++++")
+    end
+end
+
 -- Called from /ladder command, ranks players in current ladder file
 ccHardcore.LadderParse = function(pid)
 
     -- Account for end-of-month edge case
-    if ccHardcore.LadderExists() == false then
-        tes3mp.SendMessage(2, color.Red .. "Please wait until the next server restart for the new ladder." .. color.Default .. "\n", false)
+    if not ccHardcore.LadderExists() then
+        tes3mp.SendMessage(2, color.Red .. "Please wait until the next server restart for the new ladder." ..
+            color.Default .. "\n", false)
         return false
     end
 
@@ -138,30 +145,37 @@ end
 ccHardcore.ProcessDeath = function(pid)
     deathLog(pid)
 
-    local diffDays = 0
-    local diffHours = 0
-    local diffMinutes = 0
-    local playerName = string.lower(Players[pid].name)
-    local playerNameLC = string.lower(Players[pid].data.login.name)
+    local playerName = Players[pid].name
+    local playerNameLC = string.lower(Players[pid].name)
     local timePlayed = Players[pid].data.timeKeeping.timePlayed
 
-    diffDays, diffHours, diffMinutes = ccScript.ParseTime(timePlayed, nil, 2)
+    local diffDays, diffHours, diffMinutes = ccScript.ParseTime(timePlayed, nil, 2)
 
-    tes3mp.SendMessage(pid, color.Red .. "RIP: " .. playerName .. " died after surviving for " .. diffDays .. " day(s), " .. diffHours .. " hour(s), " .. diffMinutes .. " minute(s).\n", true)
+    tes3mp.SendMessage(pid, color.Red .. "RIP: " .. playerName .. " died after surviving for " .. diffDays ..
+        " day(s), " .. diffHours .. " hour(s), " .. diffMinutes .. " minute(s).\n", true)
 
     if ccDeathDrop.enabled == true then
         deathDrop(pid)
     end
 
-    if ccHardcore.LadderExists() == true then
+    if ccHardcoreSettings.ladderEnabled == true and ccHardcore.LadderExists() == true then
         local hcLadder = "ladder_" .. os.date("%y%m")
-        
+
         if ladderList.players[playerNameLC] then
             tes3mp.LogMessage(2, "++++ Removing player " .. playerName .. " from the ladder file ++++")
             ladderList.players[playerNameLC] = nil
             jsonInterface.save( hcLadder .. ".json", ladderList)
         end
     end
+
+	if ccConfig.perksEnabled == true then
+
+        if tokenList.players[playerName] then
+            tes3mp.LogMessage(2, "++++ Removing player " .. playerName .. " from the token file ++++")
+            tokenList.players[playerName] = nil
+            jsonInterface.save( "tokenlist.json", tokenList)
+        end
+	end
 
     -- Thanks to mupf for this approach
     os.remove(ccConfig.playerPath .. Players[pid].data.login.name .. ".json")
@@ -188,37 +202,6 @@ end
 -- FUNCTIONS SECTION
 --------------------
 
--- Logs death reason for HC characters
-function deathLog(pid)
-    local deathReason = tes3mp.GetDeathReason(pid)
-
-    tes3mp.LogMessage(1, "Original death reason was " .. deathReason)
-
-    if deathReason ~= "suicide" then
-        local playerKiller = deathReason
-
-        for pid, player in pairs(Players) do
-
-            if string.lower(playerKiller) == string.lower(player.name) then
-
-                if player.data.ipAddresses ~= nil then
-                    local ipAddressT = ""
-
-                    for index, ipAddress in pairs(player.data.ipAddresses) do
-                        ipAddressT = ipAddressT .. ipAddress
-
-                        if index < #player.data.ipAddresses then
-                            ipAddressT = ipAddressT .. ", "
-                        end
-                    end
-
-                    tes3mp.LogMessage(2, "++++ " .. deathReason .. " (" .. ipAddressT .. ") PKed in cell " .. tes3mp.GetCell(pid) .. " (" .. tes3mp.GetPosX(pid) .. ", " .. tes3mp.GetPosY(pid) .. ", " .. tes3mp.GetPosZ(pid) .. ") ++++")
-                end
-            end
-        end
-    end
-end
-
 -- Drops a dead Hardcore player's gold on the ground
 function deathDrop(pid)
     tes3mp.LogMessage(2, "++++ Running ccHardcore's deathDrop function ++++")
@@ -243,6 +226,31 @@ function deathDrop(pid)
             break
         end
     end
+end
+
+-- Logs death reason for HC characters
+-- Modified from player/base.lua's ProcessDeath function
+function deathLog(pid)
+    local deathReason = "committed suicide"
+
+    if tes3mp.DoesPlayerHavePlayerKiller(pid) then
+        local killerPid = tes3mp.GetPlayerKillerPid(pid)
+
+        if pid ~= killerPid then
+            deathReason = "was killed by player " .. logicHandler.GetChatName(killerPid)
+            tes3mp.LogAppend(1, "++++ " .. logicHandler.GetChatName(killerPid) .. " PKed HC player " ..
+                logicHandler.GetChatName(pid) .. " in cell " .. tes3mp.GetCell(pid) .. " ++++")
+        end
+    else
+        local killerName = tes3mp.GetPlayerKillerName(pid)
+
+        if killerName ~= "" then
+            deathReason = "was killed by " .. killerName
+        end
+    end
+
+    local message = logicHandler.GetChatName(pid) .. " " .. deathReason .. ".\n"
+    tes3mp.SendMessage(pid, message, true)
 end
 
 -- Drops an item on the ground and sends a packet to everyone else
@@ -287,7 +295,7 @@ function spairs(t, order)
     local keys = {}
 
     for k in pairs(t) do keys[#keys+1] = k end
-    
+
     if order then
         table.sort(keys, function(a,b) return order(t, a, b) end)
     else
@@ -297,7 +305,7 @@ function spairs(t, order)
     local i = 0
     return function()
         i = i + 1
-        
+
         if keys[i] then
             return keys[i], t[keys[i]]
         end

@@ -11,8 +11,8 @@
 -----------------
 
 tableHelper = require("tableHelper")
-require("ccConfig")
-require("ccAdvanceQuestsConfig")
+require("ccsuite/ccConfig")
+require("ccsuite/ccAdvanceQuestsConfig")
 
 ------------------
 -- METHODS SECTION
@@ -25,7 +25,7 @@ local ccAdvanceQuests = {}
 ccAdvanceQuests.CheckTime = function()
     tes3mp.LogMessage(2, "Checking time for ccAdvanceQuest")
 
-    if ccAdvanceQuestSettings.alwaysWipeOnRestart == false then
+    if not ccAdvanceQuestSettings.alwaysWipeOnRestart then
         local currentHour = os.date("%H")
         local wipeTimes = {}
 
@@ -35,7 +35,7 @@ ccAdvanceQuests.CheckTime = function()
             wipeTimes = ccAdvanceQuestSettings.Vanilla.WipeTimes
         end
 
-        for index, value in pairs(wipeTimes) do
+        for index, _ in pairs(wipeTimes) do
 
             if currentHour == wipeTimes[index][1] then
                 advanceQuests()
@@ -54,32 +54,35 @@ end
 -- Clear the journal and topics list, add vanilla info (ccAdvanceQuestsConfig),
 -- then add Tamriel info if applicable
 function advanceQuests()
-	tes3mp.LogMessage(2, "Resetting journal and topic entries")
+    tes3mp.LogMessage(2, "Resetting world data entries")
 
+    WorldInstance.data.factionRanks = {}
+    WorldInstance.data.factionExpulsion = {}
+    WorldInstance.data.fame = {}
     WorldInstance.data.journal = {}
-	WorldInstance.data.topics = {}
+    WorldInstance.data.kills = {}
 
-	for index, item in pairs(ccAdvanceQuestSettings.Vanilla.Quests) do
-		local journalItem = {
-			type = item[1],
-			index = item[2],
-			quest = item[3],
-			actorRefId = item[4]
-		}
+    for _, item in pairs(ccAdvanceQuestSettings.Vanilla.Quests) do
+        local journalItem = {
+            type = item[1],
+            index = item[2],
+            quest = item[3],
+            actorRefId = item[4]
+        }
 
-		table.insert(WorldInstance.data.journal, journalItem)
-	end
-    
-	for index, topicId in pairs(ccAdvanceQuestSettings.Vanilla.Topics) do
+        table.insert(WorldInstance.data.journal, journalItem)
+    end
 
-		if tableHelper.containsValue(WorldInstance.data.topics, topicId[1]) == false then
-			table.insert(WorldInstance.data.topics, topicId[1])
-		end
-	end
-    
+    for _, topicId in pairs(ccAdvanceQuestSettings.Vanilla.Topics) do
+
+        if not tableHelper.containsValue(WorldInstance.data.topics, topicId[1]) then
+            table.insert(WorldInstance.data.topics, topicId[1])
+        end
+    end
+
     if string.lower(ccConfig.serverPlugins) == "tamriel" then -- TCC Tamriel
-        
-        for index, item in pairs(ccAdvanceQuestSettings.Tamriel.Quests) do
+
+        for _, item in pairs(ccAdvanceQuestSettings.Tamriel.Quests) do
             local journalItem = {
                 type = item[1],
                 index = item[2],
@@ -89,16 +92,16 @@ function advanceQuests()
 
             table.insert(WorldInstance.data.journal, journalItem)
         end
-        
-        for index, topicId in pairs(ccAdvanceQuestSettings.Tamriel.Topics) do
 
-            if tableHelper.containsValue(WorldInstance.data.topics, topicId[1]) == false then
+        for _, topicId in pairs(ccAdvanceQuestSettings.Tamriel.Topics) do
+
+            if not tableHelper.containsValue(WorldInstance.data.topics, topicId[1]) then
                 table.insert(WorldInstance.data.topics, topicId[1])
             end
         end
     end
 
-	WorldInstance:Save()
+    WorldInstance:Save()
 end
 
 return ccAdvanceQuests

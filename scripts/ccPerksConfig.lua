@@ -15,7 +15,9 @@ ccPerksSettings = {}
 ccCreature = {}
 ccLottery = {}
 ccRace = {}
+ccRewards = {}
 ccWarp = {}
+ccWeather = {}
 
 -- Updated automatically by server on startup
 ccLottery.TokenEntries = 0
@@ -23,7 +25,9 @@ ccLottery.ItemEntries = 0
 ccLottery.TotalEntries = 0
 ccCreature.creatureText = ""
 ccRace.raceText = ""
+ccRewards.rewardsText = ""
 ccWarp.warpText = ""
+ccWeather.weatherText = ""
 
 ------------------
 -- GENERAL CONFIG
@@ -38,7 +42,27 @@ ccWarp.warpText = ""
 -- in the entries.
 --------
 
--- Change the token cost (non-Admin) for various perks.
+-- Specify the amount of tokens players receive when claiming once per day.
+ccPerksSettings.tokensPerClaim = 1
+
+-- Specify whether players earn tokens when reaching specific levels.
+ccPerksSettings.tokensOnLevelUpEnabled = true
+
+-- Specify the amount of tokens players receive when leveling up.
+-- Note: Requires tokensOnLevelUpEnabled to be enabled.
+ccPerksSettings.tokensPerLevelUp = 1
+
+-- Specify the interval at which players receive tokens after leveling up.
+-- Ex: Setting the value to 2 would give token(s) at level 2, 4, 6, etc.
+-- Note: Requires tokensOnLevelUpEnabled to be enabled.
+ccPerksSettings.tokensLevelInterval = 2
+
+-- Specify a maximum level after which player do not receive any more tokens.
+-- Set it to a high number if you do not want a maximum level.
+-- Note: Requires tokensOnLevelUpEnabled to be enabled.
+ccPerksSettings.tokensMaxLevel = 78
+
+-- Specify the token cost (for non-Admins) for various perks.
 ccPerksSettings.tokenCostBirthsign = 1
 ccPerksSettings.tokenCostCreature = 1
 ccPerksSettings.tokenCostGender = 1
@@ -47,7 +71,9 @@ ccPerksSettings.tokenCostHead = 1
 ccPerksSettings.tokenCostLottery = 1
 ccPerksSettings.tokenCostPet = 1
 ccPerksSettings.tokenCostRace = 1
+ccPerksSettings.tokenCostRewards = 1
 ccPerksSettings.tokenCostWarp = 1
+ccPerksSettings.tokenCostWeather = 1
 
 -------------------
 -- CHARACTER CONFIG
@@ -226,11 +252,6 @@ ccLottery.Items = {
     { "ingred_bread_01_UNI3", 2, -1, "some Muffins!\n" },
     { "ingred_scrib_jelly_02", 2, -1, "some rare ingredients!\n" },
     { "ingred_heartwood_01", 2, -1, "some rare ingredients!\n" },
-    { "key_Andas_tomb", 1, -1, "a unique key!\n" },
-    { "key_aurane1", 1, -1, "a unique key!\n" },
-    { "key_Falas_chest", 1, -1, "a unique key!\n" },
-    { "key_j'zhirr", 1, -1, "a unique key!\n" },
-    { "key_sethan", 1, -1, "a unique key!\n" },
     { "apparatus_sm_alembic_01", 1, -1, "a unique alchemical tool!\n" },
     { "apparatus_sm_calcinator_01", 1, -1, "a unique alchemical tool!\n" },
     { "apparatus_sm_mortar_01", 1, -1, "a unique alchemical tool!\n" },
@@ -259,4 +280,66 @@ ccLottery.Items = {
     { "light_com_lantern_02_inf", 1, -1, "a rare lantern!\n" },
     { "misc_com_plate_02_tgrc", 1, -1, "a unique Blue Plate! This one is nice.\n" },
     { "misc_com_plate_06_tgrc", 1, -1, "a unique Brown Plate! This one seems to last longer.\n" }
+}
+
+------------------
+-- REWARD CONFIG
+------------------
+
+--------
+-- INFO:
+--
+-- Choose which token rewards the player can generate.
+-- NOTE: Don't change anything inside the row entries unless you know what you're doing.
+-- If you want to remove an entry, then just delete the entire row from the table.
+--
+-- NOTE: Use /generate <table entry #> to create the permanent record.
+-- TODO: Auto-generate the records if not present in appropriate recordstore .json file.
+--
+-- Format (weapon): { inputType [1], baseid [2], id [3], name [4], model [5], icon [6], script [7], enchantmentId [8], 
+-- enchantmentCharge [9], subtype [10], weight [11], value [12], health [13], speed [14], reach [15], damageChop [16], 
+-- damageSlash [17], damageThrust [18], flags [19], count* [20], charge* [21], "Listed Name" [22] }
+-- NOTE: All fields except those marked with * must be strings. Leave fields as nil if they're not applicable.
+--------
+
+ccRewards.Items = {
+    { "weapon", nil, "ccreward_axe_thrown", "Throwable Axe", "w\\W_WARAXE_IRON.nif", "w\\Tx_waraxe_iron.tga", nil, nil, nil, 
+    "11", "0.5", "1", "100", "1.1", "1.1", { "1", "5" }, { "0", "1" }, { "0", "1" }, nil, 25, -1, "Axes (Throwable)" },
+    { "weapon", nil, "ccreward_plate_thrown_bl", "Throwable Plate", "m\\Misc_Com_Plate_02.NIF", "m\\Misc_Com_Plate_02.tga", nil, nil, nil, 
+    "11", "0.5", "1", "100", "1.1", "1.1", { "1", "5" }, { "0", "1" }, { "0", "1" }, nil, 25, -1, "Blue Plates (Throwable)" },
+    { "weapon", nil, "ccreward_plate_thrown_br", "Throwable Plate", "m\\Misc_Com_Plate_06.NIF", "m\\Misc_Com_Plate_06.tga", nil, nil, nil, 
+    "11", "0.5", "1", "100", "1.1", "1.1", { "1", "5" }, { "0", "1" }, { "0", "1" }, nil, 25, -1, "Brown Plates (Throwable)" },
+    { "weapon", nil, "ccreward_lute_melee", "Reinforced Lute", "m\\Misc_de_lute_01.NIF", "m\\Tx_de_lute_01.tga", nil, nil, nil, 
+    "5", "0.5", "1", "100", "1.1", "1.1", { "1", "5" }, { "1", "5" }, { "1", "5" }, nil, 1, -1, "Fat Lute (Melee)" },
+    { "weapon", nil, "ccreward_pillow_melee", "Reinforced Pillow", "m\\Misc_Com_Pillow_01.NIF", "m\\Misc_Com_Pillow_01.tga", nil, nil, nil, 
+    "3", "0.5", "1", "100", "1.1", "1.1", { "1", "5" }, { "1", "5" }, { "1", "5" }, nil, 1, -1, "Pillow (Melee)" },
+    { "weapon", nil, "ccreward_pillow_thrown", "Throwable Pillow", "m\\Misc_Com_Pillow_01.NIF", "m\\Misc_Com_Pillow_01.tga", nil, nil, nil, 
+    "11", "0.5", "1", "100", "1.1", "1.1", { "1", "5" }, { "0", "1" }, { "0", "1" }, nil, 25, -1, "Pillows (Throwable)" }
+}
+
+------------------
+-- WEATHER CONFIG
+------------------
+
+--------
+-- INFO:
+--
+-- Choose which weather patterns the player can generate.
+-- NOTE: Don't change anything inside the row entries; the IDs are hardcoded.
+-- If you want to remove an entry, then just delete the entire row from the table.
+--
+-- Format: { weather ID, "Displayed Name" }
+--------
+
+ccWeather.WeatherOptions = {
+    { 0, "Clear" },
+    { 1, "Cloudy" },
+    { 2, "Foggy" },
+    { 3, "Overcast" },
+    { 4, "Rain" },
+    { 5, "Thunder" },
+    { 6, "Ash" },
+    { 7, "Blight" },
+    { 8, "Snowing" },
+    { 9, "Blizzard" }
 }

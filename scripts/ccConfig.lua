@@ -31,9 +31,9 @@ ccSpawn.Tamriel = {}
 ------------------
 
 -- Paths to various folders.
-ccConfig.cellPath = os.getenv("MOD_DIR").."/cell/"
-ccConfig.dataPath = os.getenv("MOD_DIR").."/"
-ccConfig.playerPath = os.getenv("MOD_DIR").."/player/"
+ccConfig.cellPath = tes3mp.GetModDir().."/cell/"
+ccConfig.dataPath = tes3mp.GetModDir().."/"
+ccConfig.playerPath = tes3mp.GetModDir().."/player/"
 
 -- If running a server with Tamriel Rebuilt, Province Cyrodiil, and Skyrim: Home of the Nords...
 -- ...change "vanilla" to "tamriel"
@@ -41,6 +41,8 @@ ccConfig.serverPlugins = "vanilla"
 
 -- Enable various ccScript addons here.
 ccConfig.advanceQuestsEnabled = true
+ccConfig.dynamicDifficultyEnabled = true
+ccConfig.factionsEnabled = true
 ccConfig.hardcoreEnabled = true
 ccConfig.perksEnabled = true
 ccConfig.serverMsgEnabled = true
@@ -192,9 +194,17 @@ ccSafeCells.Tamriel = {}
 -- Format (clothes): { "refID", count (this should be 1), charge }
 --------
 
+-- Must be set to true for all players to receive randomized starting clothes.
+-- See ccSpawn.Vanilla.Pants, .Shirts, etc. & ccSpawn.Tamriel.Pants, .Shirts, etc.
+ccSpawn.randomizedClothes = true
+
 -- Must be set to true for specific classes to receive items after chargen.
 -- See ccSpawn.Vanilla.ClassItems & ccSpawn.Tamriel.ClassItems.
 ccSpawn.startingClassItems = true
+
+-- Must be set to true for players to receive misc. items after chargen.
+-- See ccSpawn.Vanilla.MiscItems & ccSpawn.Tamriel.MiscItems.
+ccSpawn.startingMiscItems = true
 
 -- Must be set to true for players with specific skills to receive items after chargen.
 -- See ccSpawn.Vanilla.MajorSkillItems & ccSpawn.Tamriel.MajorSkillItems.
@@ -375,31 +385,75 @@ ccSpawn.Tamriel.Cells = {
     { "136, -52", -1106032, -421883, 237, -2.06, "Stirk" }
 }
 
--- WIP tables.
 ccSpawn.Tamriel.ClassItems = {}
 
 ccSpawn.Tamriel.SkillItems = {}
 
 ccSpawn.Tamriel.MiscItems = {}
 
-ccSpawn.Tamriel.Axes = {}
+ccSpawn.Tamriel.Axes = {
+    { "T_Cr_Goblin_Axe_01", 1, -1 }
+}
 
-ccSpawn.Tamriel.BluntWeapons = {}
+ccSpawn.Tamriel.BluntWeapons = {
+    { "T_Com_Farm_Hoe_01", 1, -1 },
+    { "T_Com_Farm_Shovel_01", 1, -1 },
+    { "T_Com_Iron_Morningstar_01", 1, -1 }
+}
 
-ccSpawn.Tamriel.Longswords = {}
+ccSpawn.Tamriel.Longswords = {
+    { "T_Com_Iron_Broadsword_01", 1, -1 },
+    { "T_Com_Iron_Broadsword_02", 1, -1 },
+    { "T_Com_Iron_Broadsword_03", 1, -1 },
+    { "T_Com_Iron_Saber_01", 1, -1 },
+    { "T_Com_Iron_Saber_02", 1, -1 },
+    { "T_Com_Iron_Saber_03", 1, -1 }
+}
 
-ccSpawn.Tamriel.MarksmanWeapons = {}
+ccSpawn.Tamriel.MarksmanWeapons = {
+    { "T_Com_Wood_CrossbowFix_01", 1, -1 }
+}
 
-ccSpawn.Tamriel.MarksmanAmmo = {}
+ccSpawn.Tamriel.MarksmanAmmo = {
+    { "iron bolt", 50, -1 }
+}
 
-ccSpawn.Tamriel.Shortswords = {}
+ccSpawn.Tamriel.Shortswords = {
+    { "T_Com_Iron_Dagger_01", 1, -1 },
+    { "T_Com_Iron_Dagger_02", 1, -1 },
+    { "T_Com_Iron_Tanto_01", 1, -1 },
+    { "T_Com_Iron_Tanto_02", 1, -1 },
+    { "T_Com_Iron_Tanto_03", 1, -1 },
+    { "T_Com_Iron_Tanto_04", 1, -1 }
+}
 
-ccSpawn.Tamriel.Spears = {}
+ccSpawn.Tamriel.Spears = {
+    { "T_Com_Farm_Pitchfork_01", 1, -1 },
+    { "T_Com_Farm_Scythe_01", 1, -1 },
+    { "T_Com_Var_Harpoon_01", 1, -1 },
+    { "T_Com_Var_Harpoon_02", 1, -1 }
+}
 
-ccSpawn.Tamriel.Pants = {}
+ccSpawn.Tamriel.Pants = {
+    { "T_Com_Cm_Pants_01", 1, -1 },
+    { "T_Com_Cm_Pants_02", 1, -1 },
+    { "T_Com_Cm_Pants_03", 1, -1 },
+    { "T_Com_Cm_Pants_04", 1, -1 }
+}
 
-ccSpawn.Tamriel.Shirts = {}
+ccSpawn.Tamriel.Shirts = {
+    { "T_Com_Cm_Shirt_01", 1, -1 },
+    { "T_Com_Cm_Shirt_02", 1, -1 },
+    { "T_Com_Cm_Shirt_03", 1, -1 },
+    { "T_Com_Cm_Shirt_04", 1, -1 }
+}
 
-ccSpawn.Tamriel.Shoes = {}
+ccSpawn.Tamriel.Shoes = {
+    { "T_Com_Cm_Shoes_01", 1, -1 },
+    { "T_Com_Cm_Shoes_02", 1, -1 },
+    { "T_Com_Cm_Shoes_03", 1, -1 }
+}
 
-ccSpawn.Tamriel.Skirts = {}
+ccSpawn.Tamriel.Skirts = {
+    { "T_Com_Cm_Skirt_01", 1, -1 }
+}

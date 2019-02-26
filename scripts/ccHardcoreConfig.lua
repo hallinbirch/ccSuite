@@ -29,6 +29,9 @@ ccDeathDrop.Tamriel = {}
 -- Set it to 0 for no extra difficulty.
 ccHardcoreSettings.addedDifficulty = 25
 
+-- If enabled, HC players' names and levels will be tracked on a monthly, auto-generated ladder.
+ccHardcoreSettings.ladderEnabled = true
+
 -- If enabled, then a player will not be deleted when they die in a "safe cell" (ccConfig.lua).
 ccHardcoreSettings.useSafeCells = true
 
@@ -59,7 +62,7 @@ ccDeathDrop.enabled = true
 -- Anyone else remember Diablo II's ears?
 -- Format: { "refID", count, charge }
 ccDeathDrop.Vanilla.otherDrops = {
-    { "misc_skull00", 1, -1 },
+    { "misc_skull00", 1, -1 }
 }
 
 ccDeathDrop.Tamriel.otherDrops = {}

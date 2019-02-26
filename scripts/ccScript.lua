@@ -14,10 +14,12 @@
 -- DO NOT TOUCH!
 ------------------
 
-require("ccConfig")
-ccAdvanceQuests = require("ccAdvanceQuests")
-ccHardcore = require("ccHardcore")
-ccPerks = require("ccPerks")
+require("ccsuite/ccConfig")
+ccAdvanceQuests = require("ccsuite/ccAdvanceQuests")
+ccDynamicDifficulty = require("ccsuite/ccDynamicDifficulty")
+ccFactions = require("ccsuite/ccFactions")
+ccHardcore = require("ccsuite/ccHardcore")
+ccPerks = require("ccsuite/ccPerks")
 
 axeWeaponTable = {}
 bluntWeaponTable = {}
@@ -51,22 +53,22 @@ ccSettings.windowMOTD = 81003
 
 local ccScript = {}
 
-math.randomseed( os.time() )
-
 ccScript.Bounty = function (pid, pid2, num)
 
-    if myMod.CheckPlayerValidity(pid, pid2) then
+    if logicHandler.CheckPlayerValidity(pid, pid2) then
         tes3mp.SetBounty(pid2, num)
         tes3mp.SendBounty(pid2)
         Players[pid2]:SaveBounty()
 
-        tes3mp.SendMessage(pid, color.Yellow .. "Setting player " .. pid2 .. "'s bounty to " .. num .. "." .. color.Default .. "\n", false)
+        tes3mp.SendMessage(pid, color.Yellow .. "Setting player " .. pid2 .. "'s bounty to " .. num .. "." .. color.Default ..
+            "\n", false)
         tes3mp.SendMessage(pid2, color.Yellow .. "Your bounty has been changed to " .. num .. "." .. color.Default .. "\n", false)
     end
 end
 
 ccScript.Coords = function(pid)
-    tes3mp.LogMessage(2,"++++ " .. tes3mp.GetExteriorX(pid) .. ", " .. tes3mp.GetExteriorY(pid) .. ", " .. tes3mp.GetPosX(pid) .. ", " .. tes3mp.GetPosY(pid) .. ", " .. tes3mp.GetPosZ(pid) .. ", " .. tes3mp.GetRotZ(pid) .. ", " .. "\n")
+    tes3mp.LogMessage(2,"++++ " .. tes3mp.GetExteriorX(pid) .. ", " .. tes3mp.GetExteriorY(pid) .. ", " .. tes3mp.GetPosX(pid) ..
+        ", " .. tes3mp.GetPosY(pid) .. ", " .. tes3mp.GetPosZ(pid) .. ", " .. tes3mp.GetRotZ(pid) .. ", " .. "\n")
 end
 
 ccScript.DeleteCharacter = function(pid)
@@ -103,7 +105,7 @@ end
 
 -- Displays the server MOTD after chargen if enabled in ccConfig
 ccScript.MOTD = function(pid)
-    
+
     if ccConfig.hardcoreEnabled == true then
         tes3mp.CustomMessageBox(pid, ccSettings.windowMOTD, ccMOTD.generated, "Yes;No")
     else
@@ -116,9 +118,8 @@ ccScript.OnGUIAction = function(pid, idGui, data)
 
     if idGui == ccSettings.windowDeleteChar then
 
-        if pick == 0 then -- Delete character
-            ccScript.DeleteCharacter(pid)
-        end
+        -- Delete character
+        if pick == 0 then ccScript.DeleteCharacter(pid) end
         return true
     elseif idGui == ccSettings.windowMOTD then
 
@@ -128,15 +129,7 @@ ccScript.OnGUIAction = function(pid, idGui, data)
         end
         return true
     end
-
-    -- If no match above, then compare against ccPerks' OnGuiAction
-    if ccConfig.perksEnabled == true then
-
-        if ccPerks.OnGUIAction(pid, idGui, data) then return
-        else return false
-        end
-    else return false
-    end
+    return false
 end
 
 -- Update time played on server and save stats
@@ -170,14 +163,7 @@ ccScript.OnPlayerDeath = function(pid)
             -- Player died in a safe cell
             if ccSafeCells.enabled == true and ccHardcoreSettings.useSafeCells == true and checkSafeCell(pid) == true then
                 Players[pid]:ProcessDeath()
-            else
-
-                -- Clear player's tokenlist entry if ccPerks is enabled
-                if ccConfig.perksEnabled == true then
-                    ccPerks.ProcessHCDeath(pid)
-                end
-
-                ccHardcore.ProcessDeath(pid)
+            else ccHardcore.ProcessDeath(pid)
             end
 
         -- Player was created after the hardcore mode update
@@ -187,24 +173,33 @@ ccScript.OnPlayerDeath = function(pid)
     end
 end
 
+-- Reduce server difficulty if Dynamic Difficulty is enabled
+ccScript.OnPlayerDisconnect = function()
+
+    if ccConfig.dynamicDifficultyEnabled then
+        ccDynamicDifficulty.Main("disconnect")
+    end
+end
+
 -- Run spawn and inventory randomizer right after chargen
 ccScript.OnPlayerEndCharGen = function(pid)
 
     if Players[pid] ~= nil then
         Players[pid]:EndCharGen()
 
-        local hcInfo = {}
-        local timeInfo = {}
+        if ccConfig.hardcoreEnabled == true then
+            local hcInfo = {}
 
-        hcInfo.enabled = 0
-        hcInfo.ladder = os.date("%y%m")
+            hcInfo.enabled = 0
+            hcInfo.ladder = os.date("%y%m")
+            Players[pid].data.hardcoreMode = hcInfo
+        end
+
+        local timeInfo = {}
 
         timeInfo.timeCreated = os.time()
         timeInfo.timeStored = os.time()
         timeInfo.timePlayed = 0
-
-        Players[pid].data.hardcoreMode = hcInfo
-        Players[pid].data.timeCapsule = 0
         Players[pid].data.timeKeeping = timeInfo
 
         Players[pid]:Save()
@@ -257,10 +252,13 @@ end
 -- Iterates through entries of an info table { a source table, a destination table } to place source into destination
 ccScript.PopulateTable = function(infoTable)
 
-    for index, value in ipairs(infoTable) do
+    for index, _ in ipairs(infoTable) do
 
-        for index2, value2 in ipairs(infoTable[index][1]) do
-            table.insert(infoTable[index][2], value2)
+        if infoTable[index][1] ~= nil then
+
+            for _, value2 in ipairs(infoTable[index][1]) do
+                table.insert(infoTable[index][2], value2)
+            end
         end
     end
 end
@@ -274,8 +272,13 @@ ccScript.PunishCell = function(pid, targetPID)
         return false
     end
 
-    if myMod.CheckPlayerValidity(pid, targetPID) then
+    if logicHandler.CheckPlayerValidity(pid, targetPID) then
         local targetPlayerName = Players[tonumber(targetPID)].name
+
+        -- Try to improve RNG
+        math.randomseed(os.time())
+        math.random(); math.random()
+
         local rando = math.random(1, #punishIntTable)
 
         tes3mp.SetCell(targetPID, punishIntTable[rando][1])
@@ -295,8 +298,13 @@ ccScript.PunishOcean = function(pid, targetPID)
         return false
     end
 
-    if myMod.CheckPlayerValidity(pid, targetPID) then
+    if logicHandler.CheckPlayerValidity(pid, targetPID) then
         local targetPlayerName = Players[tonumber(targetPID)].name
+
+        -- Try to improve RNG
+        math.randomseed(os.time())
+        math.random(); math.random()
+
         local rando = math.random(1, #punishExtTable)
 
         tes3mp.SetCell(targetPID, punishExtTable[rando][1])
@@ -314,11 +322,16 @@ end
 -- Used to roll the dice
 ccScript.Roll = function(pid)
     local cellDescription = Players[pid].data.location.cell
+
+    -- Try to improve RNG
+    math.randomseed(os.time())
+    math.random(); math.random()
+
     local rando = math.random(0, 100)
 
-    if myMod.IsCellLoaded(cellDescription) == true then
+    if logicHandler.IsCellLoaded(cellDescription) == true then
 
-        for index, visitorPid in pairs(LoadedCells[cellDescription].visitors) do
+        for _, visitorPid in pairs(LoadedCells[cellDescription].visitors) do
 
             local playerName = tes3mp.GetName(pid)
             local message = color.LightPink .. playerName .. " (" .. pid .. ") rolls " .. rando .. ".\n"
@@ -401,7 +414,7 @@ ccScript.SetupSafeCells = function()
     -- Add all spawn cells to safe cells table if enabled in ccConfig.lua
     if ccSafeCells.useSpawnCells == true then
 
-        for index, entryData in pairs(spawnTable) do
+        for index, _ in pairs(spawnTable) do
             local tableEntry = { spawnTable[index][1] }
             table.insert(safeCellsTable, tableEntry)
         end
@@ -413,7 +426,7 @@ ccScript.SetupSafeCells = function()
     local infoTableVanilla = {
         { ccSafeCells.Vanilla, safeCellsTable }
     }
-    
+
     ccScript.PopulateTable(infoTableVanilla)
 
     if string.lower(ccConfig.serverPlugins) == "tamriel" then -- TCC Tamriel
@@ -422,7 +435,7 @@ ccScript.SetupSafeCells = function()
         local infoTableTamriel = {
             { ccSafeCells.Tamriel, safeCellsTable }
         }
-        
+
         ccScript.PopulateTable(infoTableTamriel)
     end
 end
@@ -431,14 +444,14 @@ end
 ccScript.SetupSpawns = function()
     tes3mp.LogMessage(2, "Populating spawn table with vanilla entries")
 
-    for index, spawnData in ipairs(ccSpawn.Vanilla.Cells) do
+    for _, spawnData in ipairs(ccSpawn.Vanilla.Cells) do
         table.insert(spawnTable, spawnData)
     end
 
     if string.lower(ccConfig.serverPlugins) == "tamriel" then -- TCC Tamriel
         tes3mp.LogMessage(2, "Populating spawn table with Tamriel entries")
 
-        for index, spawnData in ipairs(ccSpawn.Tamriel.Cells) do
+        for _, spawnData in ipairs(ccSpawn.Tamriel.Cells) do
             table.insert(spawnTable, spawnData)
         end
     end
@@ -457,10 +470,19 @@ ccScript.SetupSuite = function()
         ccAdvanceQuests.CheckTime()
     end
 
-    if ccConfig.hardcoreEnabled == true then
-        ccHardcore.SetupDeathDrop()
+    if ccConfig.factionsEnabled == true then
+        ccFactions.LoadFactionList()
+        ccFactions.FactionClean()
+    end
 
-        if ccHardcore.LadderCheck() == true then
+    if ccConfig.hardcoreEnabled == true then
+
+        if ccDeathDrop.enabled == true then
+            ccHardcore.SetupDeathDrop()
+        end
+
+        if ccHardcoreSettings.ladderEnabled == true then
+            ccHardcore.LadderHandler()
             ccHardcore.LoadLadderList()
         end
     end
@@ -470,7 +492,9 @@ ccScript.SetupSuite = function()
         ccPerks.SetupCreatures()
         ccPerks.SetupLottery()
         ccPerks.SetupRaces()
+        ccPerks.SetupRewards()
         ccPerks.SetupWarp()
+        ccPerks.SetupWeather()
         ccPerks.LoadTokenList()
         ccPerks.TokenClean()
     end
@@ -515,42 +539,50 @@ ccScript.SpawnItems = function(pid)
     local rando = 1
     local race = string.lower(Players[pid].data.character.race)
 
-    math.random(); math.random() -- Try to improve RNG
-
     Players[pid].data.inventory = {}
     Players[pid].data.equipment = {}
 
     tes3mp.LogMessage(2, "++++ Adding items to new character ++++")
-    
-    -- Add all ccSpawn.__.Items from ccConfig to player's inventory
-    for index, entryData in pairs(miscItemsTable) do
-        item = { refId = miscItemsTable[index][1], count = miscItemsTable[index][2], charge = miscItemsTable[index][3] }
-        table.insert(Players[pid].data.inventory, item)
+
+    -- Give player misc. items if enabled in ccConfig
+    if ccSpawn.startingMiscItems then
+
+        for index, _ in pairs(miscItemsTable) do
+            item = { refId = miscItemsTable[index][1], count = miscItemsTable[index][2], charge = miscItemsTable[index][3] }
+            table.insert(Players[pid].data.inventory, item)
+        end
     end
 
-    tes3mp.LogMessage(2, "++++ Randomizing new player's clothes ++++")
+    -- Give player randomized clothing if enabled in ccConfig
+    if ccSpawn.randomizedClothes then
+        tes3mp.LogMessage(2, "++++ Randomizing new player's clothes ++++")
 
-    -- Give player random shoes from ccConfig if applicable
-    if race ~= "argonian" and race ~= "khajiit" and race ~= "t_els_cathay-raht" and race ~= "t_els_ohmes-raht" then
-        rando = math.random(1, #shoesTable)
-        item = { refId = shoesTable[rando][1], count = shoesTable[rando][2], charge = shoesTable[rando][3] }
-        Players[pid].data.equipment[7] = item
-    end
+        -- Try to improve RNG
+        math.randomseed(os.time())
+        math.random(); math.random()
 
-    -- Give player a random shirt from ccConfig
-    rando = math.random(1, #shirtTable)
-    item = { refId = shirtTable[rando][1], count = shirtTable[rando][2], charge = shirtTable[rando][3] }
-    Players[pid].data.equipment[8] = item
+        -- Give player random shoes from ccConfig if applicable
+        if race ~= "argonian" and race ~= "khajiit" and race ~= "t_els_cathay-raht" and race ~= "t_els_ohmes-raht" then
+            rando = math.random(1, #shoesTable)
+            item = { refId = shoesTable[rando][1], count = shoesTable[rando][2], charge = shoesTable[rando][3] }
+            Players[pid].data.equipment[7] = item
+        end
 
-    -- Give player random legwear from ccConfig
-    if Players[pid].data.character.gender == 1 then
-        rando = math.random(1, #pantsTable)
-        item = { refId = pantsTable[rando][1], count = pantsTable[rando][2], charge = pantsTable[rando][3] }
-        Players[pid].data.equipment[9] = item
-    else
-        rando = math.random(1, #skirtTable)
-        item = { refId = skirtTable[rando][1], count = skirtTable[rando][2], charge = skirtTable[rando][3] }
-        Players[pid].data.equipment[10] = item
+        -- Give player a random shirt from ccConfig
+        rando = math.random(1, #shirtTable)
+        item = { refId = shirtTable[rando][1], count = shirtTable[rando][2], charge = shirtTable[rando][3] }
+        Players[pid].data.equipment[8] = item
+
+        -- Give player random legwear from ccConfig
+        if Players[pid].data.character.gender == 1 then
+            rando = math.random(1, #pantsTable)
+            item = { refId = pantsTable[rando][1], count = pantsTable[rando][2], charge = pantsTable[rando][3] }
+            Players[pid].data.equipment[9] = item
+        else
+            rando = math.random(1, #skirtTable)
+            item = { refId = skirtTable[rando][1], count = skirtTable[rando][2], charge = skirtTable[rando][3] }
+            Players[pid].data.equipment[10] = item
+        end
     end
 
     -- -- Give player all class-specific items if enabled
@@ -562,20 +594,24 @@ ccScript.SpawnItems = function(pid)
     if ccSpawn.startingSkillItems == true then
         checkSkills(pid)
     end
-    
+
     -- Give player a random starting weapon if enabled
     if ccSpawn.startingWeapon == true then
         checkWeaponSkills(pid)
     end
 
-    -- Refresh inventory
+    -- Update inventory and send packet for entire inventory
+    -- Probably more efficient than Players[pid]:LoadItemChanges in this case
     Players[pid]:LoadInventory()
     Players[pid]:LoadEquipment()
 end
 
 -- Randomized spawn position based on global spawnTable in server.lua
 ccScript.SpawnPosition = function(pid)
-    math.random(); math.random() -- Try to improve RNG
+    -- Try to improve RNG
+    math.randomseed(os.time())
+    math.random(); math.random()
+
     local tempRef = math.random(1, #spawnTable) -- Pick a random value from the spawn table
 
     tes3mp.LogMessage(2, "++++ Spawning new player in cell ... ++++")
@@ -589,18 +625,17 @@ end
 
 -- Calculates how long a player has been on the server + playtime
 ccScript.TimeOnServer = function(pid)
-    local diffDays = 0
-    local diffHours = 0
-    local diffMinutes = 0
     local timeCurrent = os.time()
     local timeCreated = Players[pid].data.timeKeeping.timeCreated
     local timePlayed = Players[pid].data.timeKeeping.timePlayed
 
-    diffDays, diffHours, diffMinutes = ccScript.ParseTime(timeCurrent, timeCreated, 1)
-    tes3mp.SendMessage(pid, color.Yellow .. "Your character was created " .. diffDays .. " day(s), " .. diffHours .. " hour(s), " .. diffMinutes .. " minute(s) ago.\n", false)
+    local diffDays, diffHours, diffMinutes = ccScript.ParseTime(timeCurrent, timeCreated, 1)
+    tes3mp.SendMessage(pid, color.Yellow .. "Your character was created " .. diffDays .. " day(s), " .. diffHours ..
+        " hour(s), " .. diffMinutes .. " minute(s) ago.\n", false)
 
     diffDays, diffHours, diffMinutes = ccScript.ParseTime(timePlayed, nil, 2)
-    tes3mp.SendMessage(pid, color.Yellow .. "You've played for " .. diffDays .. " day(s), " .. diffHours .. " hour(s), " .. diffMinutes .. " minute(s).\n", false)
+    tes3mp.SendMessage(pid, color.Yellow .. "You've played for " .. diffDays .. " day(s), " .. diffHours .. " hour(s), " ..
+        diffMinutes .. " minute(s).\n", false)
 end
 
 --------------------
@@ -612,15 +647,16 @@ function checkClass(pid)
     tes3mp.LogMessage(2, "++++ Checking player class ++++")
     local playerClass = string.lower(Players[pid].data.character.class)
 
-    for index, value in pairs(classItemsTable) do
+    for index, _ in pairs(classItemsTable) do
 
         if classItemsTable[index][1] == playerClass then
 
-            for index2, value2 in pairs(classItemsTable[index]) do
+            for index2, _ in pairs(classItemsTable[index]) do
                 local item = {}
 
                 if type(classItemsTable[index][index2]) == "table" then
-                    item = { refId = classItemsTable[index][index2][1], count = classItemsTable[index][index2][2], charge = classItemsTable[index][index2][3] }
+                    item = { refId = classItemsTable[index][index2][1], count = classItemsTable[index][index2][2], 
+                        charge = classItemsTable[index][index2][3] }
                     table.insert(Players[pid].data.inventory, item)
                 end
             end
@@ -634,7 +670,7 @@ end
 function checkSafeCell(pid)
     local deathCell = tes3mp.GetCell(pid)
 
-    for index, cellName in pairs(safeCellsTable) do
+    for index, _ in pairs(safeCellsTable) do
 
         if deathCell == string.lower(safeCellsTable[index][1]) then
             return true
@@ -677,7 +713,10 @@ end
 -- Check a player's skills for a random weapon after chargen (ccConfig.lua)
 function checkWeaponSkills(pid)
     tes3mp.LogMessage(2, "++++ Checking player weapon skills ++++")
-    math.random(); math.random() -- Try to get better RNG
+
+    -- Try to improve RNG
+    math.randomseed(os.time())
+    math.random(); math.random()
 
     if Players[pid].data.skills.Axe >= ccSpawn.startingWeaponMinLevel then
         local rando = math.random(1, #axeWeaponTable)
