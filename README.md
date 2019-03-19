@@ -5,28 +5,56 @@ Everything has been dehardcoded into easily-configurable tables (...Config.lua f
 
 Any ccSuite module can be enabled or disabled by changing a single line in ccConfig.lua
 
-# ccScript (Required)
-* Spawn location/starting clothes/starting weapon randomizer
-* Customizable MOTD that welcomes players after chargen
-* /stats - Allows players to track their time on the server
-* /deletecharacter - Deletes character file
-* Punish players by sending them to random configurable cells
-* Three info windows - choose their /command and message
+# Installation
+Download the entire repo, drag the two folders into /CoreScripts/, then add the following lines to /CoreScripts/scripts/customScripts.lua:
+
+```
+require("ccsuite/ccConfig")
+require("ccsuite/ccSetup")
+require("ccsuite/ccBuild")
+require("ccsuite/ccHardcore")
+require("ccsuite/ccFactions")
+require("ccsuite/ccPerks")
+require("ccsuite/ccAdvanceQuests")
+require("ccsuite/ccCellReset")
+require("ccsuite/ccCharGen")
+require("ccsuite/ccCommands")
+require("ccsuite/ccCommon")
+require("ccsuite/ccDynamicDifficulty")
+require("ccsuite/ccServerMessage")
+require("ccsuite/ccStats")
+require("ccsuite/ccWindowManager")
+```
+
+**Every script/data file must be included, even if you don't enable its respective module!**
+
+# Configuration
+* Use ccConfig.lua to enable or disable various modules
+* Every module can be customized from this file
+* Over 750 lines of customization
+* Make sure to follow the correct format for each entry and remember your commas
 
 # ccAdvanceQuest
 * Choose when your world file will be wiped, if at all
 * Choose which dialogue topics will be added to the world file
 
+# ccBuild
+* /build - Teleports players to a special cell where objects can be spawned
+* No penalties upon dying in the cell, even for hardcore players
+* Module can be configured to enable or disable wiping of the build cell 
+
+# ccCellReset
+* Choose when your cells will be wiped upon server restart, if at all
+
 # ccDynamicDifficulty
 * Choose whether the number of players affects the difficulty
+* Choose the value by which the difficulty changes, if enabled
 
 # ccFactions
-* Players can create and manage factions/guilds (no features beyond chat atm)
+* Players can create and manage factions/guilds
+* A faction can claim one cell and members will respawn there upon death
 * /f - Faction chat
-* /factions - Main faction info window
-* /factions kick - Kick a member from your faction
-* /factions invite - Invite a player to your faction
-* /factions promote - Promote a member to a higher rank (not fully implemented)
+* /faction - Main faction control window
 
 # ccHardcore
 * Players can opt into "permadeath" after chargen
@@ -38,7 +66,6 @@ Any ccSuite module can be enabled or disabled by changing a single line in ccCon
 * Token system - Players earn tokens every day and every second level-up
 * Every perk, including its token cost, is customizable in ccPerksConfig.lua
 * Lottery
-* Spawn custom weapons like melee pillows ("rewards")
 * Appear as Creature
 * Birthsign changer
 * Head changer
@@ -49,27 +76,6 @@ Any ccSuite module can be enabled or disabled by changing a single line in ccCon
 * Spawn pet (buggy)
 * Warp
 
-# ccServerMsg
+# ccServerMessage
 * Choose when and what messages will automatically appear every hour
 * If relying on a restart schedule, warn players in advance with a warning
-
-# Configuration
-* Use ccConfig.lua to enable or disable various modules
-* Everything can be customized in each module's Config file
-* Make sure to follow the correct format for each entry
-* Don't forget commas!
-
-# Installation
-Download the entire repo and drag the contents into their respective data and scripts folders in /CoreScripts/, then read below.
-
-**Every script/data file must be included, even if you don't enable the respective module!**
-
-# Changes to .../scripts/server.lua
-Open the **server.lua** file and make the following changes (use CTRL-F or something similar):
-
-**WIP**
-
-# Changes to .../scripts/player/base.lua
-Open the **base.lua** file and make the following changes (use CTRL-F or something similar):
-
-**WIP**
