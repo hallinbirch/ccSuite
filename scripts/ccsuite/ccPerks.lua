@@ -738,14 +738,13 @@ function ccPerks.tokenAdd(pid, targetPid, numTokens)
         local message = ""
 
         if numTokens ~= nil then
-            tokenCounter = Players[pid].data.perks.tokens.storedTokens + numTokens
+            tokenCounter = tonumber(Players[pid].data.perks.tokens.storedTokens) + numTokens
             message = color.Gold .. "SERVER: " .. playerName .. " has received " .. numTokens .. " token(s)!\n"
         else
             tokenCounter = Players[pid].data.perks.tokens.storedTokens + 1
             message = color.Gold .. "SERVER: " .. playerName .. " has received a token!\n"
         end
         tes3mp.SendMessage(pid, message, true)
-
         Players[pid].data.perks.tokens.storedTokens = tokenCounter
         Players[pid]:Save()
     end
@@ -762,15 +761,15 @@ function ccPerks.tokenAddAll(origPid, numTokens)
             local message = ""
 
             if numTokens ~= nil then
-                tokenCounter = Players[pid].data.perks.tokens.storedTokens + numTokens
+                tokenCounter = tonumber(Players[pid].data.perks.tokens.storedTokens) + numTokens
                 message = color.Gold .. "SERVER: " .. playerName .. " has received " .. numTokens .. " token(s)!\n"
             else
                 tokenCounter = Players[pid].data.perks.tokens.storedTokens + 1
                 message = color.Gold .. "SERVER: " .. playerName .. " has received a token!\n"
             end
+            tes3mp.SendMessage(p.pid, message, true)
             Players[pid].data.perks.tokens.storedTokens = tokenCounter
             Players[pid]:Save()
-            tes3mp.SendMessage(p.pid, message, true)
         end
     end
 end
@@ -933,7 +932,8 @@ function ccPerks.windowTokenClaim(pid) -- Used to give one token per day
     if getToken then
         message = color.Gold .. "You've claimed your daily token. Type /perks for a list of commands that you can use.\n"
         Players[pid].data.perks.tokens.claimDate = os.time()
-        Players[pid].data.perks.tokens.storedTokens = Players[pid].data.perks.tokens.storedTokens + ccConfig.Perks.TokensPerClaim
+        Players[pid].data.perks.tokens.storedTokens = tonumber(Players[pid].data.perks.tokens.storedTokens)
+            + ccConfig.Perks.TokensPerClaim
         Players[pid]:Save()
     else message = color.Error .. "You've already claimed your daily token.\n"
     end

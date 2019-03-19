@@ -90,11 +90,11 @@ end
 
 function ccBuild.OnPlayerDeath(eventStatus, pid)
     -- Overwrites OnPlayerDeath events from ccHardcore and others if dead in enabled safe cell
-    tes3mp.LogMessage(2, "[!!!!] ccBuild.OnPlayerDeath fired")
+    tes3mp.LogMessage(2, "[ccBuild] OnPlayerDeath called")
     local deathCell = tes3mp.GetCell(pid)
 
     if ccConfig.Build.SafeBuildEnabled and deathCell == ccConfig.Build.BuildCell[1] then
-        tes3mp.LogMessage(2, "[!!!!] ccBuild.OnPlayerDeath fired and checks passed")
+        tes3mp.LogMessage(2, "[ccBuild] ccBuild.OnPlayerDeath fired and checks passed")
         return customEventHooks.makeEventStatus(true, false)
     end
 end

@@ -234,7 +234,8 @@ end
 
 function ccHardcore.OnPlayerDeath(eventStatus, pid)
     -- Controls death mechanics for hardcore players
-    local isSoftcore = false
+    tes3mp.LogMessage(2, "[ccHardcore] OnPlayerDeath called")
+    local isSafe = true
 
     -- Check if this event is blocked by another script like ccBuild
     if eventStatus.validCustomHandlers then
@@ -243,15 +244,16 @@ function ccHardcore.OnPlayerDeath(eventStatus, pid)
 
             -- Check if player has the hardcoreMode table in their json file
             if ccConfig.HardcoreEnabled and Players[pid].data.hardcoreMode and Players[pid].data.hardcoreMode.enabled then
+                isSafe = false
 
                 -- Player died in a safe cell so we follow vanilla death mechanics
                 if ccConfig.Hardcore.SafeCells.enabled and ccConfig.Hardcore.UseSafeCells and ccHardcore.isSafeCell(pid) then
-                    isSoftcore = true
+                    isSafe = true
                     return customEventHooks.makeEventStatus(true, false)
                 end
             -- Player was created after the hardcore mode update or doesn't have hardcore mode enabled
             else
-                isSoftcore = true
+                isSafe = true
                 return customEventHooks.makeEventStatus(true, false)
             end
         else
@@ -259,7 +261,8 @@ function ccHardcore.OnPlayerDeath(eventStatus, pid)
         end
     end
 
-    if not isSoftcore then
+    if not isSafe then
+        tes3mp.LogMessage(2, "[ccHardcore] ccHardcore.OnPlayerDeath fired and checks passed")
         ccHardcore.deathLog(pid)
 
         local playerName = Players[pid].name
