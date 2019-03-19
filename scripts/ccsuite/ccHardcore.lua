@@ -234,7 +234,7 @@ end
 
 function ccHardcore.OnPlayerDeath(eventStatus, pid)
     -- Controls death mechanics for hardcore players
-    local isHardcore = false
+    local isSoftcore = false
 
     -- Check if this event is blocked by another script like ccBuild
     if eventStatus.validCustomHandlers then
@@ -246,12 +246,12 @@ function ccHardcore.OnPlayerDeath(eventStatus, pid)
 
                 -- Player died in a safe cell so we follow vanilla death mechanics
                 if ccConfig.Hardcore.SafeCells.enabled and ccConfig.Hardcore.UseSafeCells and ccHardcore.isSafeCell(pid) then
-                    isHardcore = true
+                    isSoftcore = true
                     return customEventHooks.makeEventStatus(true, false)
                 end
             -- Player was created after the hardcore mode update or doesn't have hardcore mode enabled
             else
-                isHardcore = true
+                isSoftcore = true
                 return customEventHooks.makeEventStatus(true, false)
             end
         else
@@ -259,7 +259,7 @@ function ccHardcore.OnPlayerDeath(eventStatus, pid)
         end
     end
 
-    if isHardcore then
+    if not isSoftcore then
         ccHardcore.deathLog(pid)
 
         local playerName = Players[pid].name
