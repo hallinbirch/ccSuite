@@ -816,7 +816,7 @@ end
 
 function ccPerks.tokenCommand(pid, cmd)
 
-    if not ccPerks.isModerator(pid) then return false end
+    if not Players[pid]:IsModerator() then return false end
 
     if cmd[2] == "add" then
 
