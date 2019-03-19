@@ -915,11 +915,11 @@ function ccPerks.windowRewards(pid)
 end
 
 function ccPerks.windowTokenClaim(pid) -- Used to give one token per day
-    tes3mp.LogMessage(2, "[ccPerks] " .. playerName .. " uses /claimtoken")
     local getToken = false
     local playerName = string.lower(Players[pid].name)
     local message = ""
     local timeStored = Players[pid].data.perks.tokens.claimDate
+    tes3mp.LogMessage(2, "[ccPerks] " .. playerName .. " uses /claimtoken")
 
     -- This should happen:
     if timeStored == 0 or type(timeStored) == "number" then
