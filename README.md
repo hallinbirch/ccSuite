@@ -21,6 +21,7 @@ require("ccsuite/ccCharGen")
 require("ccsuite/ccCommands")
 require("ccsuite/ccCommon")
 require("ccsuite/ccDynamicDifficulty")
+require("ccsuite/ccHolidays")
 require("ccsuite/ccServerMessage")
 require("ccsuite/ccStats")
 require("ccsuite/ccWindowManager")
@@ -61,6 +62,11 @@ require("ccsuite/ccWindowManager")
 * /ladder - Displays the HC players from highest level to lowest
 * Configure whether HC players drop gold on death
 * Configure optional safe cells (ccConfig.lua) for HC players
+
+# ccHolidays - WIP
+* Choose which holidays/events your server will celebrate
+* /holiday - Gives the player a gift on a specific date(s)
+* Note: Holiday functionality is mostly hard-coded, but you can opt in/out of any holiday
 
 # ccPerks
 * Token system - Players earn tokens every day and every second level-up
