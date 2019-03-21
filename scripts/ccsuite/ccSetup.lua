@@ -42,6 +42,7 @@ ccHardcore.CurrentLadder = ""
 ccHardcore.DeathDropTable = {}
 ccHardcore.LadderList = {}
 ccHardcore.SafeCellsTable = {}
+ccHolidays = {}
 ccPerks = {}
 ccPerks.CreatureTable = {}
 ccPerks.CreatureTableText = ""

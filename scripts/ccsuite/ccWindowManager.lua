@@ -97,7 +97,8 @@ function ccWindowManager.factions(pid, idGui, data)
                 elseif pick == 3 then ccFactions.windowKickMember(pid)
                 elseif pick == 4 then ccFactions.windowDisbandFaction(pid)
                 elseif pick == 5 then ccFactions.windowClaimCell(pid)
-                elseif pick == 6 then ccFactions.windowListFactions(pid)
+                elseif pick == 6 then ccFactions.warpFactionCell(pid)
+                elseif pick == 7 then ccFactions.windowListFactions(pid)
                 end
             elseif tonumber(Players[pid].data.factions.rank) == 1 then
 
@@ -106,12 +107,14 @@ function ccWindowManager.factions(pid, idGui, data)
                 elseif pick == 2 then ccFactions.windowKickMember(pid)
                 elseif pick == 3 then ccFactions.windowLeaveFaction(pid)
                 elseif pick == 4 then ccFactions.windowClaimCell(pid)
-                elseif pick == 5 then ccFactions.windowListFactions(pid)
+                elseif pick == 5 then ccFactions.warpFactionCell(pid)
+                elseif pick == 6 then ccFactions.windowListFactions(pid)
                 end         
             else
 
                 if pick == 0 then ccFactions.windowListMembers(pid)
                 elseif pick == 1 then ccFactions.windowLeaveFaction(pid)
+                elseif pick == 2 then ccFactions.warpFactionCell(pid)
                 elseif pick == 2 then ccFactions.windowListFactions(pid)
                 end
             end

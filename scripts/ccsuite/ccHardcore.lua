@@ -243,7 +243,7 @@ function ccHardcore.OnPlayerDeath(eventStatus, pid)
         if Players[pid] ~= nil and Players[pid]:IsLoggedIn() then
 
             -- Check if player has the hardcoreMode table in their json file
-            if ccConfig.HardcoreEnabled and Players[pid].data.hardcoreMode and Players[pid].data.hardcoreMode.enabled then
+            if ccConfig.HardcoreEnabled and Players[pid].data.hardcoreMode and Players[pid].data.hardcoreMode.enabled == 1 then
                 isSafe = false
 
                 -- Player died in a safe cell so we follow vanilla death mechanics

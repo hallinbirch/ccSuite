@@ -35,6 +35,11 @@ function ccFactions.checkPlayerFileEntry(pid)
         changeMade = true
     end
 
+    if not Players[pid].data.factions.lastWarp then
+        Players[pid].data.factions.lastWarp = tonumber(0)
+        changeMade = true
+    end
+
     if changeMade then Players[pid]:Save() end
 end
 
@@ -66,7 +71,7 @@ end
 
 function ccFactions.createFaction(pid, factionName)
     -- Add news faction to factionlist.json, calls ccFactions.joinFaction to update player data
-    local playerName = Players[pid].name
+    local playerName = string.lower(Players[pid].name)
 
     if not ccFactions.isFactionNameOK(pid, factionName) then return false end
 
@@ -201,12 +206,12 @@ function ccFactions.factionMenuCommand(pid)
 
         if tonumber(Players[pid].data.factions.rank) == 2 then
             factionText = "List all members\nInvite player to faction\nPromote member\nKick member\nDisband faction\n"
-                .. "Claim current cell\nList all factions\nCancel"
+                .. "Claim current cell\nWarp to faction cell\nList all factions\nCancel"
         elseif tonumber(Players[pid].data.factions.rank) == 1 then
             factionText = "List all members\nInvite player to faction\nKick member\nLeave faction\nClaim current cell\n"
-                .. "List all factions\nCancel"
+                .. "Warp to faction cell\nList all factions\nCancel"
         else
-            factionText = "List all members\nLeave faction\nList all factions\nCancel"
+            factionText = "List all members\nLeave faction\nWarp to faction cell\nList all factions\nCancel"
         end
     end
 
@@ -250,15 +255,16 @@ function ccFactions.joinFaction(pid, factionName)
     -- Finishes faction joining process
     -- Updates player and factionlist.json files with new membership info
     local playerName = Players[pid].name
+    local playerNameLC = string.lower(Players[pid].name)
     local factionNameLC = string.lower(factionName)
     local message = color.Green .. playerName .. " has "
 
-    if string.lower(playerName) == string.lower(ccFactions.FactionList[factionNameLC].leader) then
-        table.insert(ccFactions.FactionList[factionNameLC].members, { playerName, 2 })
+    if playerNameLC == string.lower(ccFactions.FactionList[factionNameLC].leader) then
+        table.insert(ccFactions.FactionList[factionNameLC].members, { playerNameLC, 2 })
         Players[pid].data.factions.rank = 2
         message = message .. "formed a new faction: " .. color.Yellow .. factionName .. ".\n"
     else
-        table.insert(ccFactions.FactionList[factionNameLC].members, { playerName, 0 })
+        table.insert(ccFactions.FactionList[factionNameLC].members, { playerNameLC, 0 })
         message = message .. "joined a faction: " .. color.Yellow .. factionName .. ".\n"
     end
     ccFactions.saveFactionList()
@@ -316,9 +322,9 @@ end
 function ccFactions.leaveFaction(pid)
     -- Removes player from faction if not leader, disbands faction if leader
     local factionNameLC = string.lower(Players[pid].data.factions.id)
-    local playerName = Players[pid].name
+    local playerName = string.lower(Players[pid].name)
 
-    if string.lower(playerName) == string.lower(ccFactions.FactionList[factionNameLC].leader) then ccFactions.disbandFaction(pid)
+    if playerName == string.lower(ccFactions.FactionList[factionNameLC].leader) then ccFactions.disbandFaction(pid)
     else
         ccFactions.removeFactionEntry(pid)
         ccFactions.removeMemberEntry(factionNameLC, playerName)
@@ -356,18 +362,18 @@ function ccFactions.promoteMember(pid, pick, factionNameLC)
 
     for _, p in pairs(Players) do
 
-        if string.lower(target) == string.lower(p.name) then
-            local targetName = p.name
+        if target == string.lower(p.name) then
+            --local targetName = p.name
             local targetPid = tonumber(p.pid)
             local message = ""
 
             if factionNameLC == string.lower(Players[targetPid].data.factions.id) then
-                tes3mp.LogMessage(1, "[ccFactions] promoteMember: Promoting player " .. targetName)
+                tes3mp.LogMessage(1, "[ccFactions] promoteMember: Promoting player " .. target)
 
                 for k, v in pairs(ccFactions.FactionList[factionNameLC].members) do
 
-                    if v[1] == targetName then
-                        tes3mp.LogMessage(1, "[ccFactions] removeMemberEntry: Updating " .. targetName .. "'s rank to 1 in faction " .. factionNameLC)
+                    if v[1] == target then
+                        tes3mp.LogMessage(1, "[ccFactions] removeMemberEntry: Updating " .. target .. "'s rank to 1 in faction " .. factionNameLC)
                         v[2] = 1
                         ccFactions.saveFactionList()
                     end
@@ -392,6 +398,7 @@ function ccFactions.removeFactionEntry(pid)
     local factionName = Players[pid].data.factions.id
     local factionNameLC = string.lower(factionName)
     local playerName = Players[pid].name
+    local playerNameLC = string.lower(Players[pid].name)
 
     Players[pid].data.factions.id = ""
     Players[pid].data.factions.rank = 0
@@ -399,13 +406,13 @@ function ccFactions.removeFactionEntry(pid)
 
     local message = ""
 
-    if not ccFactions.doesFactionExist(factionNameLC) then
-        message = color.Orange .. "FACTION: You have been removed from your faction because it no longer exists.\n"
-        tes3mp.SendMessage(pid, message, false)
-    else
-        ccFactions.removeMemberEntry(factionNameLC, playerName)
+    if ccFactions.doesFactionExist(factionNameLC) then
+        ccFactions.removeMemberEntry(factionNameLC, playerNameLC)
         message = color.Orange .. "FACTION: " .. playerName .. " is no longer a member of:\n" .. color.Yellow .. factionName .. "\n"
         tes3mp.SendMessage(pid, message, true)
+    else
+        message = color.Orange .. "FACTION: You have been removed from your faction because it no longer exists.\n"
+        tes3mp.SendMessage(pid, message, false)
     end
 end
 
@@ -431,6 +438,33 @@ function ccFactions.saveFactionList()
     jsonInterface.save("factionlist.json", ccFactions.FactionList)
 end
 
+function ccFactions.warpFactionCell(pid)
+    -- Teleports player to their faction's claimed cell
+    local factionNameLC = string.lower(Players[pid].data.factions.id)
+
+    if ccFactions.FactionList[factionNameLC] then
+
+        if ccFactions.FactionList[factionNameLC].cells[1] then
+            local diff = (os.time() - Players[pid].data.factions.lastWarp)
+            local numSeconds = ccConfig.Factions.WarpCooldown
+
+            if (diff / numSeconds) > 1 then
+                Players[pid].data.factions.lastWarp = os.time()
+                Players[pid]:Save()
+                tes3mp.SetCell(pid, ccFactions.FactionList[factionNameLC].cells[1])
+                tes3mp.SendCell(pid)
+            else
+                tes3mp.SendMessage(pid, color.Error .. "You must wait to use that command again.", false)
+            end
+        else
+            tes3mp.SendMessage(pid, color.Error .. "Your faction hasn't claimed a cell.", false)
+        end
+    else
+        tes3mp.LogMessage(2, "[ccFactions] ERROR in ccFactions.warpFactionCell")
+        tes3mp.SendMessage(pid, color.Error .. "ERROR: Please alert an admin.", false)
+    end
+end
+
 function ccFactions.windowClaimCell(pid)
     -- Asks the player to confirm Yes/No whether they want to claim their current cell
 
@@ -453,7 +487,7 @@ function ccFactions.windowClaimCell(pid)
         end
     end
 
-    local claimText = "Are you sure that you want to claim this cell?"
+    local claimText = "Are you sure that you want to claim this cell?\nYou can only claim one cell at a time."
     tes3mp.CustomMessageBox(pid, ccWindowSettings.ClaimCell, claimText, "Yes;No")
 end
 
@@ -466,7 +500,7 @@ end
 function ccFactions.windowDisbandFaction(pid)
     -- Asks the player to confirm Yes/No whether they want to delete faction
     local deleteText = "Are you sure you want to disband your faction?"
-    tes3mp.CustomMessageBox(pid, ccWindowSettings.DeleteFaction, deleteText, "Yes;No")
+    tes3mp.CustomMessageBox(pid, ccWindowSettings.DisbandFaction, deleteText, "Yes;No")
 end
 
 function ccFactions.windowFactionInvite(pid)
@@ -556,26 +590,6 @@ end
 -- EVENTS
 ------------------
 
-function ccFactions.OnDeathTimeExpiration(eventStatus, pid)
-    -- Controls player respawn if respawning in faction-claimed cell is enabled
-    local factionNameLC = string.lower(Players[pid].data.factions.id)
-
-    if ccConfig.Factions.CellRespawnEnabled and ccFactions.FactionList[factionNameLC]
-        and ccFactions.FactionList[factionNameLC].cells[1] then
-
-        tes3mp.SetCell(pid, ccFactions.FactionList[factionNameLC].cells[1])
-        tes3mp.SendCell(pid)
-
-        if Players[pid].data.shapeshift.isWerewolf then
-            Players[pid]:SetWerewolfState(false)
-        end
-
-        contentFixer.UnequipDeadlyItems(pid)
-        tes3mp.Resurrect(pid, enumerations.resurrect.REGULAR)
-        return customEventHooks.makeEventStatus(false, false)
-    end
-end
-
 function ccFactions.OnPlayerEndCharGen(eventStatus, pid)
     -- Give new players the ccFactions data entries
     tes3mp.LogMessage(1, "[ccFactions] OnPlayerEndCharGen: " .. Players[pid].name .. " called")
@@ -597,13 +611,12 @@ function ccFactions.OnPlayerFinishLogin(eventStatus, pid)
                 " to deletion")
             ccFactions.removeFactionEntry(pid)
         else
-            local playerName = Players[pid].name
+            local playerName = string.lower(Players[pid].name)
+            local playerNameLC = string.lower(Players[pid].name)
 
             for _, entry in pairs(ccFactions.FactionList[factionNameLC].members) do
 
-                if entry[1] == playerName then
-                    tes3mp.LogMessage(1, "[ccFactions] OnPlayerFinishLogin: " .. playerName .. " updated last login of" .. 
-                        " faction " .. factionName)
+                if entry[1] == playerNameLC then
 
                     -- Check if player was promoted while offline
                     if Players[pid].data.factions.rank ~= entry[2] then
@@ -666,7 +679,6 @@ if ccConfig.FactionsEnabled then
     customCommandHooks.registerCommand("f", ccFactions.factionChatCommand)
     customCommandHooks.registerCommand("faction", ccFactions.factionCommand)
 
-    customEventHooks.registerValidator("OnDeathTimeExpiration", ccFactions.OnDeathTimeExpiration)
     customEventHooks.registerHandler("OnPlayerEndCharGen", ccFactions.OnPlayerEndCharGen)
     customEventHooks.registerHandler("OnPlayerFinishLogin", ccFactions.OnPlayerFinishLogin)
     customEventHooks.registerHandler("OnServerPostInit", ccFactions.OnServerPostInit)

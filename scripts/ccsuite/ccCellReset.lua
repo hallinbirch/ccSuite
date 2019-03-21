@@ -24,7 +24,7 @@ function ccCellReset.deleteCells()
         end
     end
 
-    if ccConfig.CellReset.SaveBuildCell then
+    if ccConfig.CellReset.SaveBuildCell and ccConfig.Build.BuildCell[1] then
         tes3mp.LogMessage(2, "[ccCellReset] Adding ccBuild cell to preservation table")
         table.insert(preserveTable, ccConfig.Build.BuildCell[1])
     end
@@ -46,7 +46,7 @@ function ccCellReset.deleteCells()
     ccCellReset.CellResetList = jsonInterface.load("cellresetlist.json")
 
     -- Delete cells listed in cellresetlist.json
-    tes3mp.LogMessage(2, "[ccCellReset] Deleting cells")
+    tes3mp.LogMessage(2, "[ccCellReset] Preparing to delete cells")
 
     for listEntry, _ in pairs(ccCellReset.CellResetList) do
         local deleteCell = true
@@ -57,8 +57,8 @@ function ccCellReset.deleteCells()
             if listEntry == preserveCell then
                 deleteCell = false
                 cellName = preserveCell
+                break
             end
-            break
         end
 
         if deleteCell then os.remove(ccConfig.CellPath .. listEntry .. ".json")
@@ -76,8 +76,8 @@ end
 -- EVENTS
 -----------------
 
-function ccCellReset.OnCellUnload(eventStatus, pid, cellDescription)
-    -- Update cellresetlist.json when player leaves cell
+function ccCellReset.OnCellLoad(eventStatus, pid, cellDescription)
+    -- Update cellresetlist.json when player enter cell
 
     if ccCellReset.CellResetList[cellDescription] == nil then ccCellReset.CellResetList[cellDescription] = {} end
     jsonInterface.save("cellresetlist.json", ccCellReset.CellResetList)
@@ -109,7 +109,7 @@ function ccCellReset.OnServerPostInit(eventStatus)
 end
 
 if ccConfig.CellResetEnabled then
-    customEventHooks.registerValidator("OnCellUnload", ccCellReset.OnCellUnload)
+    customEventHooks.registerValidator("OnCellLoad", ccCellReset.OnCellLoad)
     customEventHooks.registerHandler("OnServerPostInit", ccCellReset.OnServerPostInit)
 end
 

@@ -38,6 +38,7 @@ ccConfig.Hardcore.DeathDrop.Vanilla = {}
 ccConfig.Hardcore.SafeCells = {}
 ccConfig.Hardcore.SafeCells.Tamriel = {}
 ccConfig.Hardcore.SafeCells.Vanilla = {}
+ccConfig.Holidays = {}
 ccConfig.Perks = {}
 ccConfig.Perks.Lottery = {}
 ccConfig.Perks.Tamriel = {}
@@ -64,6 +65,7 @@ ccConfig.CellResetEnabled = true
 ccConfig.DynamicDifficultyEnabled = true
 ccConfig.FactionsEnabled = true
 ccConfig.HardcoreEnabled = true
+ccConfig.HolidaysEnabled = true
 ccConfig.PerksEnabled = true
 ccConfig.ServerMessageEnabled = true
 ccConfig.StatsEnabled = true
@@ -171,11 +173,16 @@ ccConfig.CellReset.AlwaysWipeOnRestart = false
 -- will delete non-saved cells only if the server restarts during the following hours.
 ccConfig.CellReset.WipeTimes.Vanilla = {
     { "01" },
-    { "13" }
+    { "07" },
+    { "13" },
+    { "19" }
 }
 
 ccConfig.CellReset.WipeTimes.Tamriel = {
-    { "01" }
+    { "01" },
+    { "07" },
+    { "13" },
+    { "19" }
 }
 
 -- Specifies which vanilla cells should not be deleted upon cell reset.
@@ -585,8 +592,8 @@ ccConfig.Factions.ChatColor = color.LightBlue
 -- Specifies whether players can claim cells.
 ccConfig.Factions.ClaimCellsEnabled = true
 
--- Specifies whether players respawn in their faction's claimed cell.
-ccConfig.Factions.CellRespawnEnabled = true
+-- Specifies the amount of seconds a player must wait to use warp-to-faction-cell again.
+ccConfig.Factions.WarpCooldown = 7200
 
 -- Specifies which cells (interpreted as prefixes) are prohibited from being claimed.
 ccConfig.Factions.ProhibitedCells = {
@@ -701,6 +708,29 @@ ccConfig.Hardcore.SafeCells.useSpawnCells = true
 ccConfig.Hardcore.SafeCells.Vanilla = {}
 
 ccConfig.Hardcore.SafeCells.Tamriel = {}
+
+---------------------
+-- HOLIDAYS CONFIG
+---------------------
+
+--------
+-- INFO:
+--
+-- Designates specific days or periods as special events.
+--
+-- NOTE: Default holidays are currently hardcoded. You'll have to edit ccHolidays.lua to 
+-- add functionality for any new holidays you create.
+--------
+
+-- Specifies days or periods of special events.
+-- Delete an entry to prevent it from being processed.
+-- Format: { "Name", "day/period", "start month", "start day", "end month", "end day" }
+ccConfig.Holidays.Table = {
+    { "Anniversary", "day", 04, 10, nil, nil },
+    { "Halloween", "day", 10, 31, nil, nil },
+    { "Morrowind", "day", 05, 01, nil, nil },
+    { "Winter", "period", 12, 24, 01, 01 }
+} 
 
 ------------------
 -- PERKS CONFIG
