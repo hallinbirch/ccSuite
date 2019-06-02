@@ -51,7 +51,7 @@ ccConfig.ServerMessage = {}
 
 -- Paths to various folders.
 ccConfig.CellPath = tes3mp.GetModDir().."/cell/"
-ccConfig.DataPath = tes3mp.GetModDir().."/"
+ccConfig.DataPath = tes3mp.GetModDir().."/../data/custom/"
 ccConfig.PlayerPath = tes3mp.GetModDir().."/player/"
 
 -- If running a server with Tamriel Rebuilt, Province Cyrodiil, and 
