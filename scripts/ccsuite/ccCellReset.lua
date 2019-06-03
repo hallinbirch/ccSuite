@@ -43,7 +43,7 @@ function ccCellReset.deleteCells()
 
     -- Load the list of cells to be deleted
     tes3mp.LogMessage(2, "[ccCellReset] Loading cellresetlist.json")
-    ccCellReset.CellResetList = jsonInterface.load("cellresetlist.json")
+    ccCellReset.CellResetList = jsonInterface.load("custom/cellresetlist.json")
 
     -- Delete cells listed in cellresetlist.json
     tes3mp.LogMessage(2, "[ccCellReset] Preparing to delete cells")
@@ -69,7 +69,7 @@ function ccCellReset.deleteCells()
     -- Clear the list of cells and save
     tes3mp.LogMessage(2, "[ccCellReset] Saving cellresetlist.json")
     ccCellReset.CellResetList = {}
-    jsonInterface.save("cellresetlist.json", ccCellReset.CellResetList)
+    jsonInterface.save("custom/cellresetlist.json", ccCellReset.CellResetList)
 end
 
 -----------------
@@ -80,7 +80,7 @@ function ccCellReset.OnCellLoad(eventStatus, pid, cellDescription)
     -- Update cellresetlist.json when player enter cell
 
     if ccCellReset.CellResetList[cellDescription] == nil then ccCellReset.CellResetList[cellDescription] = {} end
-    jsonInterface.save("cellresetlist.json", ccCellReset.CellResetList)
+    jsonInterface.save("custom/cellresetlist.json", ccCellReset.CellResetList)
 end
 
 function ccCellReset.OnServerPostInit(eventStatus)

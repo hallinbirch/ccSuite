@@ -435,7 +435,7 @@ end
 function ccFactions.saveFactionList()
     -- Saves factionlist.json
     tes3mp.LogMessage(1, "[ccFactions] Saving factionlist.json")
-    jsonInterface.save("factionlist.json", ccFactions.FactionList)
+    jsonInterface.save("custom/factionlist.json", ccFactions.FactionList)
 end
 
 function ccFactions.warpFactionCell(pid)
@@ -649,7 +649,7 @@ end
 function ccFactions.OnServerPostInit(eventStatus)
     -- Initializes factions table
 	tes3mp.LogMessage(1, "[ccFactions] Loading factionlist.json")
-	ccFactions.FactionList = jsonInterface.load("factionlist.json")
+	ccFactions.FactionList = jsonInterface.load("custom/factionlist.json")
 
     -- Cleans up inactive factions
     tes3mp.LogMessage(1, "[ccFactions] Cleaning factionlist.json")

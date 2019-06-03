@@ -36,7 +36,7 @@ function ccCharGen.checkSkills(pid)
 
     for skillName, skillValue in pairs(Players[pid].data.skills) do
 
-        if skillValue >= ccConfig.CharGen.StartingSkillMinLevel then
+        if skillValue.base >= ccConfig.CharGen.StartingSkillMinLevel then
 
             for index2, _ in pairs(ccCharGen.SkillItemsTable) do
 
@@ -68,24 +68,24 @@ function ccCharGen.checkWeaponSkills(pid)
     math.randomseed(os.time())
     math.random(); math.random()
 
-    if Players[pid].data.skills.Axe >= ccConfig.CharGen.StartingWeaponMinLevel then
+    if Players[pid].data.skills.Axe.base >= ccConfig.CharGen.StartingWeaponMinLevel then
         local rando = math.random(1, #ccCharGen.AxeWeaponTable)
         ccCharGen.giveEquipment(pid, rando, ccCharGen.AxeWeaponTable, 16)
-    elseif Players[pid].data.skills.Bluntweapon >= ccConfig.CharGen.StartingWeaponMinLevel then
+    elseif Players[pid].data.skills.Bluntweapon.base >= ccConfig.CharGen.StartingWeaponMinLevel then
         local rando = math.random(1, #ccCharGen.BluntWeaponTable)
        ccCharGen. giveEquipment(pid, rando, ccCharGen.BluntWeaponTable, 16)
-    elseif Players[pid].data.skills.Longblade >= ccConfig.CharGen.StartingWeaponMinLevel then
+    elseif Players[pid].data.skills.Longblade.base >= ccConfig.CharGen.StartingWeaponMinLevel then
         local rando = math.random(1, #ccCharGen.LongWeaponTable)
         ccCharGen.giveEquipment(pid, rando, ccCharGen.LongWeaponTable, 16)
-    elseif Players[pid].data.skills.Marksman >= ccConfig.CharGen.StartingWeaponMinLevel then
+    elseif Players[pid].data.skills.Marksman.base >= ccConfig.CharGen.StartingWeaponMinLevel then
         local rando = math.random(1, #ccCharGen.MarksmanWeaponTable)
         ccCharGen.giveEquipment(pid, rando, ccCharGen.MarksmanWeaponTable, 16)
         rando = math.random(1, #ccCharGen.MarksmanAmmoTable)
         ccCharGen.giveEquipment(pid, rando, ccCharGen.MarksmanAmmoTable, 18)
-    elseif Players[pid].data.skills.Shortblade >= ccConfig.CharGen.StartingWeaponMinLevel then
+    elseif Players[pid].data.skills.Shortblade.base >= ccConfig.CharGen.StartingWeaponMinLevel then
         local rando = math.random(1, #ccCharGen.ShortWeaponTable)
         ccCharGen.giveEquipment(pid, rando, ccCharGen.ShortWeaponTable, 16)
-    elseif Players[pid].data.skills.Spear >= ccConfig.CharGen.StartingWeaponMinLevel then
+    elseif Players[pid].data.skills.Spear.base >= ccConfig.CharGen.StartingWeaponMinLevel then
         local rando = math.random(1, #ccCharGen.SpearWeaponTable)
         ccCharGen.giveEquipment(pid, rando, ccCharGen.SpearWeaponTable, 16)
     end

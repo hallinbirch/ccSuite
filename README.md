@@ -6,25 +6,25 @@ Everything has been dehardcoded into easily-configurable tables (...Config.lua f
 Any ccSuite module can be enabled or disabled by changing a single line in ccConfig.lua
 
 # Installation
-Download the entire repo, drag the two folders into /CoreScripts/, then add the following lines to /CoreScripts/scripts/customScripts.lua:
+Download the entire repo, drag the [ccsuite folder](scripts/ccsuite) into `CoreScripts/scripts/custom`, and the [data folder](data/) into `CoreScripts/data/custom`.  Then add the following lines to `CoreScripts/scripts/customScripts.lua`:
 
 ```
-require("ccsuite/ccConfig")
-require("ccsuite/ccSetup")
-require("ccsuite/ccBuild")
-require("ccsuite/ccHardcore")
-require("ccsuite/ccFactions")
-require("ccsuite/ccPerks")
-require("ccsuite/ccAdvanceQuests")
-require("ccsuite/ccCellReset")
-require("ccsuite/ccCharGen")
-require("ccsuite/ccCommands")
-require("ccsuite/ccCommon")
-require("ccsuite/ccDynamicDifficulty")
-require("ccsuite/ccHolidays")
-require("ccsuite/ccServerMessage")
-require("ccsuite/ccStats")
-require("ccsuite/ccWindowManager")
+require("custom/ccsuite/ccConfig")
+require("custom/ccsuite/ccSetup")
+require("custom/ccsuite/ccBuild")
+require("custom/ccsuite/ccHardcore")
+require("custom/ccsuite/ccFactions")
+require("custom/ccsuite/ccPerks")
+require("custom/ccsuite/ccAdvanceQuests")
+require("custom/ccsuite/ccCellReset")
+require("custom/ccsuite/ccCharGen")
+require("custom/ccsuite/ccCommands")
+require("custom/ccsuite/ccCommon")
+require("custom/ccsuite/ccDynamicDifficulty")
+require("custom/ccsuite/ccHolidays")
+require("custom/ccsuite/ccServerMessage")
+require("custom/ccsuite/ccStats")
+require("custom/ccsuite/ccWindowManager")
 ```
 
 **Every script/data file must be included, even if you don't enable its respective module!**
