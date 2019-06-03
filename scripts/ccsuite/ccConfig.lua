@@ -432,7 +432,7 @@ ccConfig.CharGen.Vanilla.Skirts = {
 -- Additional cells/locations that are added to vanilla table 
 -- if "tamriel" is chosen above.
 ccConfig.CharGen.Tamriel.Cells = {
-    { "-106, 8", -862215, 66311, 86, 2.89, "Karthwasten" },
+    { "-106, 8", -861187, 66491, 89, "Karthwasten" },
     { "136, -52", -1106032, -421883, 237, -2.06, "Stirk" }
 }
 
