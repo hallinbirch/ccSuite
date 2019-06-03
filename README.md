@@ -6,7 +6,7 @@ Everything has been dehardcoded into easily-configurable tables (...Config.lua f
 Any ccSuite module can be enabled or disabled by changing a single line in ccConfig.lua
 
 # Installation
-Download the entire repo, drag the "[ccsuite folder](scripts/ccsuite)" into `CoreScripts/scripts/custom`, and the "[data folder](data/)" into `CoreScripts/data/custom`.  Then add the following lines to `CoreScripts/scripts/customScripts.lua`:
+Download the entire repo, drag the [ccsuite folder](scripts/ccsuite) into `CoreScripts/scripts/custom`, and the [data folder](data/) into `CoreScripts/data/custom`.  Then add the following lines to `CoreScripts/scripts/customScripts.lua`:
 
 ```
 require("custom/ccsuite/ccConfig")
