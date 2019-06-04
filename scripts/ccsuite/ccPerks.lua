@@ -35,12 +35,42 @@ function ccPerks.checkPlayerFileEntry(pid)
         changeMade = true
     end
 
-    if changeMade then Players[pid]:Save() end
+    if changeMade then Players[pid]:QuicksaveToDrive() end
 end
 
 function ccPerks.choiceHandler(pid, pick)
     tes3mp.LogMessage(2, "[ccPerks] ccPerks.choiceHandler called")
     ccPerks.PerksTable[pick].storedFunc(pid)
+end
+
+function ccPerks.expelledFactions(pid)
+    -- Clears expulsion status for a player's vanilla faction
+    tes3mp.LogMessage(2, "[ccPerks] ccPerks.expelledFactions called")
+
+    if Players[pid].data.factionExpulsion["mages guild"] == nil then
+        tes3mp.SendMessage(pid, color.Error .. "You have not been expelled from the Mages Guild.\n", false)
+        return false
+    else
+
+        if Players[pid].data.factionExpulsion["mages guild"] == false then
+            tes3mp.SendMessage(pid, color.Error .. "You have not been expelled from the Mages Guild.\n", false)
+            return false
+        end
+    end
+
+    if Players[pid]:IsModerator() then
+    else
+
+        if not ccPerks.tokenCalculate(pid, playerName, ccConfig.Perks.TokenCostExpulsion) then
+            return false
+        end
+    end
+
+    tes3mp.LogMessage(2, "[ccPerks] ccPerks.expelledFactions: Clearing expulsion for " .. Players[pid].name)
+    Players[pid].data.factionExpulsion["mages guild"] = false
+    Players[pid]:QuicksaveToDrive()
+    tes3mp.SendFactionChanges(pid, true, true)
+    tes3mp.SendMessage(pid, color.Yellow .. "You have made amends with the Mages Guild. Please disconnect and rejoin the server to remove your expulsion status.\n", false)
 end
 
 function ccPerks.finalizeBirthsign(pid, pick)
@@ -272,7 +302,7 @@ function ccPerks.finalizePet(pid, pet)
         end
     end
 
-    Players[pid]:Save()
+    Players[pid]:QuicksaveToDrive()
 
     logicHandler.RunConsoleCommandOnPlayer(pid, spawnCommand)
     tes3mp.LogMessage(2, "[ccPerks] " .. playerName .. " successfully used ccPerks.finalizePet " .. pet)
@@ -319,7 +349,7 @@ function ccPerks.finalizeRace(pid, pick)
     Players[pid].data.character.hair = hair
     Players[pid].data.character.head = head
     Players[pid].data.character.race = ccPerks.RaceTable[pick][1]
-    Players[pid]:Save()
+    Players[pid]:QuicksaveToDrive()
 
     -- Add racial spells if needed
     if ccPerks.RaceTable[pick][1] == "argonian" then
@@ -329,7 +359,7 @@ function ccPerks.finalizeRace(pid, pick)
     end
 
     tes3mp.SendSpellbookChanges(pid)
-    -- Players[pid]:Save()  original location
+    -- Players[pid]:QuicksaveToDrive()  original location
 
     message = color.Gold .. "Your race is now " .. ccPerks.RaceTable[pick][10] .. ".\nReconnect to the server to apply the change.\n"
     tes3mp.SendMessage(pid, message, false)
@@ -557,7 +587,7 @@ function ccPerks.handlerLottery(pid) -- Used to generate prizes for tokens
         end
 
         Players[pid].data.perks.tokens.storedTokens = tokenCount
-        Players[pid]:Save()
+        Players[pid]:QuicksaveToDrive()
     else
         message = color.Gold .. "LOTTERY: You didn't win anything this time...\n"
     end
@@ -746,7 +776,7 @@ function ccPerks.tokenAdd(pid, targetPid, numTokens)
         end
         tes3mp.SendMessage(pid, message, true)
         Players[pid].data.perks.tokens.storedTokens = tokenCounter
-        Players[pid]:Save()
+        Players[pid]:QuicksaveToDrive()
     end
 end
 
@@ -769,7 +799,7 @@ function ccPerks.tokenAddAll(origPid, numTokens)
             end
             tes3mp.SendMessage(p.pid, message, true)
             Players[pid].data.perks.tokens.storedTokens = tokenCounter
-            Players[pid]:Save()
+            Players[pid]:QuicksaveToDrive()
         end
     end
 end
@@ -782,7 +812,7 @@ function ccPerks.tokenCalculate(pid, playerName, tokenCost)
     if tokenCounter >= 1 then
         tokenCounter = Players[pid].data.perks.tokens.storedTokens - tokenCost
         Players[pid].data.perks.tokens.storedTokens = tokenCounter
-        Players[pid]:Save()
+        Players[pid]:QuicksaveToDrive()
         
         message = color.Gold .. "You use a token and now have " .. tokenCounter .. " token(s).\n"
         tes3mp.SendMessage(pid, message, false)
@@ -934,7 +964,7 @@ function ccPerks.windowTokenClaim(pid) -- Used to give one token per day
         Players[pid].data.perks.tokens.claimDate = os.time()
         Players[pid].data.perks.tokens.storedTokens = tonumber(Players[pid].data.perks.tokens.storedTokens)
             + ccConfig.Perks.TokensPerClaim
-        Players[pid]:Save()
+        Players[pid]:QuicksaveToDrive()
     else message = color.Error .. "You've already claimed your daily token.\n"
     end
     tes3mp.SendMessage(pid, message, false)
@@ -957,6 +987,7 @@ end
 ccPerks.PerksTable = {
     { name = "Claim Daily Token", storedFunc = ccPerks.windowTokenClaim },
     { name = "Appear as Creature", storedFunc = ccPerks.windowCreature },
+    { name = "Rejoin Mages Guild", storedFunc = ccPerks.expelledFactions },
     { name = "Change Birthsign", storedFunc = ccPerks.windowBirthsign },
     { name = "Change Gender", storedFunc = ccPerks.windowGender },
     { name = "Change Hair", storedFunc = ccPerks.windowHair },
@@ -1012,7 +1043,7 @@ function ccPerks.OnPlayerLevel(eventStatus, pid)
                 tes3mp.SendMessage(pid, color.Gold .. "You've received a token(s) for leveling up! You can use it on /perks." ..
                     color.Default .. "\n", false)
             end
-            Players[pid]:Save()
+            Players[pid]:QuicksaveToDrive()
         end
     end
 end

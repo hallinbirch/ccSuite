@@ -63,7 +63,7 @@ function ccAdvanceQuests.resetWorld()
         end
     end
 
-    WorldInstance:Save()
+    WorldInstance:QuicksaveToDisk()
 end
 
 -- If server isn't set to always wipe world file on restart (ccAdvanceQuestsConfig),

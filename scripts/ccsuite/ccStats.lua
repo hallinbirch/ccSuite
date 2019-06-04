@@ -20,7 +20,7 @@ function ccStats.checkPlayerFileEntry(pid)
         changeMade = true
     end
 
-    if changeMade then Players[pid]:Save() end
+    if changeMade then Players[pid]:QuicksaveToDrive() end
 end
 
 function ccStats.parseTime(timeCurrent, timeOriginal, ident)
@@ -81,7 +81,7 @@ function ccStats.OnPlayerCellChange(eventStatus, pid)
 
             Players[pid].data.timeKeeping.timePlayed = played + (os.time() - stored)
             Players[pid].data.timeKeeping.timeStored = os.time()
-            Players[pid]:Save()
+            Players[pid]:QuicksaveToDrive()
         end
     end
 end

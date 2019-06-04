@@ -40,7 +40,7 @@ function ccFactions.checkPlayerFileEntry(pid)
         changeMade = true
     end
 
-    if changeMade then Players[pid]:Save() end
+    if changeMade then Players[pid]:QuicksaveToDrive() end
 end
 
 function ccFactions.claimCell(pid)
@@ -271,7 +271,7 @@ function ccFactions.joinFaction(pid, factionName)
     tes3mp.SendMessage(pid, message, true)
 
     Players[pid].data.factions.id = factionName
-    Players[pid]:Save()
+    Players[pid]:QuicksaveToDrive()
 end
 
 function ccFactions.kickMember(pid, pick, factionNameLC)
@@ -381,7 +381,7 @@ function ccFactions.promoteMember(pid, pick, factionNameLC)
 
                 if Players[targetPid] ~= nil and Players[targetPid]:IsLoggedIn() then
                     Players[targetPid].data.factions.rank = 1
-                    Players[targetPid]:Save()
+                    Players[targetPid]:QuicksaveToDrive()
                     message = "FACTION: You have been promoted to the rank of Officer.\n"
                 end
 
@@ -402,7 +402,7 @@ function ccFactions.removeFactionEntry(pid)
 
     Players[pid].data.factions.id = ""
     Players[pid].data.factions.rank = 0
-    Players[pid]:Save()
+    Players[pid]:QuicksaveToDrive()
 
     local message = ""
 
@@ -435,7 +435,7 @@ end
 function ccFactions.saveFactionList()
     -- Saves factionlist.json
     tes3mp.LogMessage(1, "[ccFactions] Saving factionlist.json")
-    jsonInterface.save("custom/factionlist.json", ccFactions.FactionList)
+    jsonInterface.save("custom/ccsuite/factionlist.json", ccFactions.FactionList)
 end
 
 function ccFactions.warpFactionCell(pid)
@@ -450,7 +450,7 @@ function ccFactions.warpFactionCell(pid)
 
             if (diff / numSeconds) > 1 then
                 Players[pid].data.factions.lastWarp = os.time()
-                Players[pid]:Save()
+                Players[pid]:QuicksaveToDrive()
                 tes3mp.SetCell(pid, ccFactions.FactionList[factionNameLC].cells[1])
                 tes3mp.SendCell(pid)
             else
@@ -627,7 +627,7 @@ function ccFactions.OnPlayerFinishLogin(eventStatus, pid)
                             tes3mp.SendMessage(pid, color.Orange .. "FACTION: You have been demoted.\n", false)
                         end
                         Players[pid].data.factions.rank = entry[2]
-                        Players[pid]:Save()
+                        Players[pid]:QuicksaveToDrive()
                     end
 
                     -- Update the faction's last login time to avoid deletion
@@ -649,7 +649,7 @@ end
 function ccFactions.OnServerPostInit(eventStatus)
     -- Initializes factions table
 	tes3mp.LogMessage(1, "[ccFactions] Loading factionlist.json")
-	ccFactions.FactionList = jsonInterface.load("custom/factionlist.json")
+	ccFactions.FactionList = jsonInterface.load("custom/ccsuite/factionlist.json")
 
     -- Cleans up inactive factions
     tes3mp.LogMessage(1, "[ccFactions] Cleaning factionlist.json")

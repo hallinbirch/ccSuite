@@ -76,7 +76,7 @@ function ccCommands.finalizeDeleteCharacter(pid)
             if ccHardcore.LadderList.players[playerNameLC] then
                 tes3mp.LogMessage(2, "[ccHardcore] Removing player " .. playerName .. " from the ladder file")
                 ccHardcore.LadderList.players[playerNameLC] = nil
-                jsonInterface.save( "custom/" .. hcLadder .. ".json", ccHardcore.LadderList)
+                jsonInterface.save("custom/ccsuite/" .. hcLadder .. ".json", ccHardcore.LadderList)
             end
         end
     end

@@ -50,9 +50,9 @@ ccConfig.ServerMessage = {}
 --------------------
 
 -- Paths to various folders.
-ccConfig.CellPath = tes3mp.GetModDir().."/cell/"
-ccConfig.DataPath = tes3mp.GetModDir().."/../data/custom/"
-ccConfig.PlayerPath = tes3mp.GetModDir().."/player/"
+ccConfig.CellPath = tes3mp.GetDataPath().."/cell/"
+ccConfig.DataPath = tes3mp.GetDataPath().."/custom/ccsuite/"
+ccConfig.PlayerPath = tes3mp.GetDataPath().."/player/"
 
 -- If running a server with Tamriel Rebuilt, Province Cyrodiil, and 
 -- Skyrim: Home of the Nords, then change "vanilla" to "tamriel".
@@ -573,7 +573,7 @@ ccConfig.Commands.Punish.Tamriel.Exteriors = {}
 ------------------------------
 
 -- How much the difficulty will increase or decrease per player connection event.
-ccConfig.DynamicDifficulty.DifficultyPerPlayer = 10
+ccConfig.DynamicDifficulty.DifficultyPerPlayer = 7
 
 -- If enabled, the difficulty will stop increasing after a specified value.
 ccConfig.DynamicDifficulty.MaxDifficultyEnabled = true
@@ -593,7 +593,7 @@ ccConfig.Factions.ChatColor = color.LightBlue
 ccConfig.Factions.ClaimCellsEnabled = true
 
 -- Specifies the amount of seconds a player must wait to use warp-to-faction-cell again.
-ccConfig.Factions.WarpCooldown = 7200
+ccConfig.Factions.WarpCooldown = 1800
 
 -- Specifies which cells (interpreted as prefixes) are prohibited from being claimed.
 ccConfig.Factions.ProhibitedCells = {
@@ -768,6 +768,7 @@ ccConfig.Perks.TokensMaxLevel = 78
 -- Specify the token cost (for non-Admins) for various perks.
 ccConfig.Perks.TokenCostBirthsign = 1
 ccConfig.Perks.TokenCostCreature = 1
+ccConfig.Perks.TokenCostExpulsion = 1
 ccConfig.Perks.TokenCostGender = 1
 ccConfig.Perks.TokenCostHair = 1
 ccConfig.Perks.TokenCostHead = 1

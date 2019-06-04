@@ -27,7 +27,7 @@ function ccHolidays.checkPlayerFileEntry(pid)
         changeMade = true
     end
 
-    if changeMade then Players[pid]:Save() end
+    if changeMade then Players[pid]:QuicksaveToDrive() end
 end
 
 function ccHolidays.holidayCommand(pid)

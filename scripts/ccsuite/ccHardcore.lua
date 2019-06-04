@@ -20,7 +20,7 @@ function ccHardcore.checkPlayerFileEntry(pid)
         changeMade = true
     end
 
-    if changeMade then Players[pid]:Save() end
+    if changeMade then Players[pid]:QuicksaveToDrive() end
 end
 
 function ccHardcore.isSafeCell(pid, script)
@@ -79,7 +79,7 @@ function ccHardcore.deathDropItem(pid, refId, count)
     LoadedCells[cell]:InitializeObjectData(refIndex, refId)
     LoadedCells[cell].data.objectData[refIndex].location = location
     table.insert(LoadedCells[cell].data.packets.place, refIndex)
-    LoadedCells[cell]:Save()
+    LoadedCells[cell]:QuicksaveToDrive()
 
     for onlinePid, player in pairs(Players) do
 
@@ -133,7 +133,7 @@ function ccHardcore.hardcoreMode(pid)
     hcInfo.enabled = 1
     hcInfo.ladder = os.date("%y%m")
     Players[pid].data.hardcoreMode = hcInfo
-    Players[pid]:Save()
+    Players[pid]:QuicksaveToDrive()
 
     -- Increase player's difficulty
     tes3mp.SetDifficulty(pid, newDifficulty)
@@ -149,7 +149,7 @@ function ccHardcore.hardcoreMode(pid)
         -- Ensure there's no residual pre-death info saved from another player
         if ccHardcore.LadderList.players[playerNameLC] then
             ccHardcore.LadderList.players[playerNameLC] = nil
-            jsonInterface.save("custom/" .. hcLadder .. ".json", ccHardcore.LadderList)
+            jsonInterface.save("custom/ccsuite/" .. hcLadder .. ".json", ccHardcore.LadderList)
         end
 
         -- Create a table entry for this player in the ladder file
@@ -157,7 +157,7 @@ function ccHardcore.hardcoreMode(pid)
         player.displayName = Players[pid].data.login.name
         player.level = 1
         ccHardcore.LadderList.players[playerNameLC] = player
-        jsonInterface.save("custom/ladder_" .. ccHardcore.CurrentLadder .. ".json", ccHardcore.LadderList)
+        jsonInterface.save("custom/ccsuite/ladder_" .. ccHardcore.CurrentLadder .. ".json", ccHardcore.LadderList)
     else
         tes3mp.SendMessage(pid, color.Red .. "ERROR: Failed to join the ladder. Please delete your character" ..
             " and try again after the next server restart.\n", false)
@@ -284,7 +284,7 @@ function ccHardcore.OnPlayerDeath(eventStatus, pid)
             if ccHardcore.LadderList.players[playerNameLC] then
                 tes3mp.LogMessage(2, "[ccHardcore] Removing player " .. playerName .. " from the ladder file")
                 ccHardcore.LadderList.players[playerNameLC] = nil
-                jsonInterface.save( "custom/" .. hcLadder .. ".json", ccHardcore.LadderList)
+                jsonInterface.save("custom/ccsuite/" .. hcLadder .. ".json", ccHardcore.LadderList)
             end
         end
 
@@ -324,7 +324,7 @@ function ccHardcore.OnPlayerLevel(eventStatus, pid)
             if ccHardcore.LadderList.players[playerNameLC] then
                 tes3mp.LogMessage(2, "[ccHardcore] Updating ladder level of player " .. playerName)
                 ccHardcore.LadderList.players[playerNameLC].level = Players[pid].data.stats.level
-                jsonInterface.save( "custom/" .. hcLadder .. ".json", ccHardcore.LadderList)
+                jsonInterface.save("custom/ccsuite/" .. hcLadder .. ".json", ccHardcore.LadderList)
             end
         end
     end
@@ -381,7 +381,7 @@ function ccHardcore.OnServerPostInit(eventStatus)
 
         -- Initializes monthly player ladder table
         tes3mp.LogMessage(2, "[ccHardcore] Loading ladder_" .. os.date("%y%m") .. ".json")
-        ccHardcore.LadderList = jsonInterface.load("custom/ladder_" .. os.date("%y%m") .. ".json")
+        ccHardcore.LadderList = jsonInterface.load("custom/ccsuite/ladder_" .. os.date("%y%m") .. ".json")
     end
  
     -- If enabled, players drop items on death

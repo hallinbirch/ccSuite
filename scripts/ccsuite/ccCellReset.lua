@@ -41,27 +41,26 @@ function ccCellReset.deleteCells()
         end
     end
 
-    -- Load the list of cells to be deleted
-    tes3mp.LogMessage(2, "[ccCellReset] Loading cellresetlist.json")
-    ccCellReset.CellResetList = jsonInterface.load("custom/cellresetlist.json")
-
     -- Delete cells listed in cellresetlist.json
     tes3mp.LogMessage(2, "[ccCellReset] Preparing to delete cells")
 
-    for listEntry, _ in pairs(ccCellReset.CellResetList) do
+    for cellDescription, _ in pairs(ccCellReset.CellResetList) do
         local deleteCell = true
         local cellName = ""
 
         for _, preserveCell in pairs(preserveTable) do
 
-            if listEntry == preserveCell then
+            if cellDescription == preserveCell then
                 deleteCell = false
                 cellName = preserveCell
                 break
             end
         end
 
-        if deleteCell then os.remove(ccConfig.CellPath .. listEntry .. ".json")
+        if deleteCell then
+            -- tes3mp.LogMessage(2, "[ccCellReset] Deleting cell " .. cellDescription)
+            local cell = Cell(cellDescription)
+            os.remove(ccConfig.CellPath .. cell.entryFile)
         else tes3mp.LogMessage(2, "[ccCellReset] Ignoring cell " .. cellName)
         end
     end
@@ -69,7 +68,7 @@ function ccCellReset.deleteCells()
     -- Clear the list of cells and save
     tes3mp.LogMessage(2, "[ccCellReset] Saving cellresetlist.json")
     ccCellReset.CellResetList = {}
-    jsonInterface.save("custom/cellresetlist.json", ccCellReset.CellResetList)
+    jsonInterface.save("custom/ccsuite/cellresetlist.json", ccCellReset.CellResetList)
 end
 
 -----------------
@@ -79,11 +78,17 @@ end
 function ccCellReset.OnCellLoad(eventStatus, pid, cellDescription)
     -- Update cellresetlist.json when player enter cell
 
-    if ccCellReset.CellResetList[cellDescription] == nil then ccCellReset.CellResetList[cellDescription] = {} end
-    jsonInterface.save("custom/cellresetlist.json", ccCellReset.CellResetList)
+    if ccCellReset.CellResetList[cellDescription] == nil then
+        ccCellReset.CellResetList[cellDescription] = {}
+        jsonInterface.save("custom/ccsuite/cellresetlist.json", ccCellReset.CellResetList)
+    end
 end
 
 function ccCellReset.OnServerPostInit(eventStatus)
+    -- Initializes cell reset table
+    tes3mp.LogMessage(2, "[ccCellReset] Loading cellresetlist.json")
+    ccCellReset.CellResetList = jsonInterface.load("custom/ccsuite/cellresetlist.json")
+
     -- Checks time then populates cell preservation table
     tes3mp.LogMessage(2, "[ccCellReset] Checking time for cell reset")
 
@@ -109,7 +114,7 @@ function ccCellReset.OnServerPostInit(eventStatus)
 end
 
 if ccConfig.CellResetEnabled then
-    customEventHooks.registerValidator("OnCellLoad", ccCellReset.OnCellLoad)
+    customEventHooks.registerHandler("OnCellLoad", ccCellReset.OnCellLoad)
     customEventHooks.registerHandler("OnServerPostInit", ccCellReset.OnServerPostInit)
 end
 
