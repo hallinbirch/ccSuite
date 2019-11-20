@@ -3,6 +3,8 @@
 --
 -- 
 
+config.defaultSpawnCell = nil --disable default spawning behavior
+
 -----------------
 -- FUNCTIONS
 -----------------
@@ -188,50 +190,8 @@ function ccCharGen.spawnPosition(pid)
     tes3mp.SendPos(pid)
 end
 
+
 function ccCharGen.OnPlayerEndCharGen(eventStatus, pid)
-    -- Mostly a copy of the default TES3MP EndCharGen function
-    -- Need to keep this updated
-    Players[pid]:SaveLogin()
-    Players[pid]:SaveCharacter()
-    Players[pid]:SaveClass()
-    Players[pid]:SaveStatsDynamic()
-    Players[pid]:SaveEquipment()
-    Players[pid]:SaveIpAddress()
-    Players[pid]:CreateAccount()
-
-    WorldInstance:LoadTime(pid, false)
-    WorldInstance:LoadWeather(pid, false, true)
-
-    for _, storeType in ipairs(config.recordStoreLoadOrder) do
-        local recordStore = RecordStores[storeType]
-
-        -- Load all the permanent records in this record store
-        recordStore:LoadRecords(pid, recordStore.data.permanentRecords,
-            tableHelper.getArrayFromIndexes(recordStore.data.permanentRecords))
-    end
-
-    if config.shareJournal == true then
-        WorldInstance:LoadJournal(pid)
-    end
-
-    if config.shareFactionRanks == true then
-        WorldInstance:LoadFactionRanks(pid)
-    end
-
-    if config.shareFactionExpulsion == true then
-        WorldInstance:LoadFactionExpulsion(pid)
-    end
-
-    if config.shareFactionReputation == true then
-        WorldInstance:LoadFactionReputation(pid)
-    end
-
-    if config.shareTopics == true then
-        WorldInstance:LoadTopics(pid)
-    end
-
-    WorldInstance:LoadKills(pid)
-
     ccCharGen.spawnPosition(pid)
     ccCharGen.spawnItems(pid)
 
@@ -241,11 +201,8 @@ function ccCharGen.OnPlayerEndCharGen(eventStatus, pid)
     else
         tes3mp.CustomMessageBox(pid, ccWindowSettings.MOTD, ccConfig.CharGen.MOTDGenerated, "Ok")
     end
-
-    -- This approach isn't compatible with default or modded tes3mp CharGen behavior so we block them
-    return customEventHooks.makeEventStatus(false, false)
 end
 
-customEventHooks.registerValidator("OnPlayerEndCharGen", ccCharGen.OnPlayerEndCharGen)
+customEventHooks.registerHandler("OnPlayerEndCharGen", ccCharGen.OnPlayerEndCharGen)
 
 return ccCharGen
